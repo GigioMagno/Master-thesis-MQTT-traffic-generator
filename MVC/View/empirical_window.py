@@ -6,6 +6,9 @@ class EmpiricalConfig(QWidget):
         super().__init__()
         layout = QVBoxLayout()
 
+        #Path for selected pcap file
+        #self.pcap_path
+
         self.browse_button = QPushButton("Browse PCAP File")
         self.file_label = QLabel("No file selected")
         self.browse_button.clicked.connect(self.browse_file)
@@ -19,9 +22,12 @@ class EmpiricalConfig(QWidget):
     # Function for file browsing
     def browse_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open PCAP File", "", "PCAP Files (*.pcap *.pcapng);;All Files (*)")
+
         if file_path:
-            
+
+            #self.pcap_path = file_path            
             self.file_label.setText(file_path)
         else:
 
+            #self.pcap_path = None
             self.file_label.setText("No file selected")

@@ -1,16 +1,21 @@
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QPushButton,
-    QVBoxLayout, QHBoxLayout, QStackedWidget
+    QVBoxLayout, QHBoxLayout, QStackedWidget, QFileDialog
 )
 from PyQt5.QtCore import Qt, QPropertyAnimation, QPoint, QEasingCurve
-from manual_config import ManualConfig
-from empirical_window import EmpiricalConfig
+from View.manual_config import ManualConfig
+from View.empirical_window import EmpiricalConfig
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Device Configuration")
         self.setGeometry(100, 100, 1000, 600)
+
+        #Paths...
+        #self.load_csv_path
+        #self.save_csv_path
+
 
         # Main layout
         main_layout = QHBoxLayout()
@@ -32,10 +37,12 @@ class MainWindow(QMainWindow):
         self.footer_layout.setAlignment(Qt.AlignBottom)
         self.add_config = QPushButton("Add configuration")
         self.save_to_csv = QPushButton("Save to csv")
+        self.load_csv = QPushButton("Load configs from csv")
         self.run_gen = QPushButton("Run generator")
         self.stop_gen = QPushButton("Stop generator")
         self.footer_layout.addWidget(self.add_config)
         self.footer_layout.addWidget(self.save_to_csv)
+        self.footer_layout.addWidget(self.load_csv)
         self.footer_layout.addWidget(self.run_gen)
         self.footer_layout.addWidget(self.stop_gen)
 
@@ -60,7 +67,7 @@ class MainWindow(QMainWindow):
         # Switch page button
         self.manual_config_button.clicked.connect(lambda: self.switch_page(0))
         self.empirical_mode_button.clicked.connect(lambda: self.switch_page(1))
-
+        
     # Switch page given index
     def switch_page(self, index):
         current_index = self.stack.currentIndex()

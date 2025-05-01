@@ -1,10 +1,7 @@
 import time, numpy as np
 import threading
-import sys
-sys.path.append("../../Utils")
-sys.path.append("../MQTT_handler")
-from Distributions import draw_from_uniform, draw_from_exponential, draw_from_gaussian
-import MQTT_handler	#Forse non serve
+from Utils.Distributions import Distributions
+from Model.MQTT_handler.MQTT_handler import MQTT_handler	#Forse non serve
 
 class EvilTasks:
 	
@@ -138,16 +135,16 @@ class EvilTasks:
 		match distribution:
 
 			case "uniform":
-				period = draw_from_uniform(inf, sup)
+				period = Distributions.draw_from_uniform(inf, sup)
 
 			case "exponential":
-				period = draw_from_exponential(inf, sup)
+				period = Distributions.draw_from_exponential(inf, sup)
 
 			case "normal":
-				period = draw_from_gaussian(inf, sup)
+				period = Distributions.draw_from_gaussian(inf, sup)
 
 			case _:
-				period = draw_from_uniform(inf, sup)
+				period = Distributions.draw_from_uniform(inf, sup)
 
 		if period < 0:
 

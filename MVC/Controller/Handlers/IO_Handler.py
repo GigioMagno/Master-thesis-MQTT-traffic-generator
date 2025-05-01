@@ -1,11 +1,11 @@
-import sys
-sys.path.append("../Model/Generator")
+from Model.Generator.Generator import Generator
+import pandas as pd
 
 class IO_Handler:
 	
-	def __init__(self, Generator):
+	def __init__(self, Gen):	#Gen -> Generator
 		
-		self.Generator = Generator
+		self.Gen = Gen
 
 	#READ CONFIG FILE
 	def load_from_csv_devices_configs(self, csv_path):
@@ -16,26 +16,32 @@ class IO_Handler:
 				   "HiddenMessage" : "", "DeviceType" : "legit"}
 		try:
 			#Read and fill
-			df = pd.read_csv(csv_path).fillna(default);
-			df["QoS"]=df["QoS"].astype(int)
+			df = pd.read_csv(csv_path, sep=";")
+			print(df.columns)
+			df = df.dropna(subset=["Topic"])
+			df = df[df["Topic"] != ""]
+			df = df.fillna(default);
+
+			df["QoS"] = df["QoS"].astype(int)
 			df["Period"] = df["Period"].astype(float)
 			df["MinRange"] = df["MinRange"].astype(float)
 			df["MaxRange"] = df["MaxRange"].astype(float)
-			df["NumClients"]=df["NumClients"].astype(int)
+			df["NumClients"] = df["NumClients"].astype(int)
 			df["Duration"] = df["Duration"].astype(float)
-			self.Generator.devices_configs = df.to_dict("records")
+			
+			self.Gen.devices_configs = df.to_dict("records")
 
 		except Exception as e:
-			print("Error during devices configurations from csv")
+			print("Error during devices configurations from csv:", {e})
 
 	#SAVE DEVICES CONFIGS IN A CSV FILE (TRUE: SAVING COMPLETED, FALSE: SAVING NOT COMPLETED)
 	def save_in_csv_devices_configs(self, csv_path):
 		
-		if self.Generator.devices_configs is not None:
+		if self.Gen.devices_configs is not None:
 			
 			try:
 				
-				df = pd.DataFrame(self.Generator.devices_configs)
+				df = pd.DataFrame(self.Gen.devices_configs)
 				df.to_csv(csv_path, index = False)
 				return True
 

@@ -1,10 +1,13 @@
-import sys
-from main_window import MainWindow
+from View.main_window import MainWindow
 from PyQt5.QtCore import Qt, QPropertyAnimation, QPoint, QEasingCurve
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton, QLabel,
     QVBoxLayout, QHBoxLayout, QComboBox, QLineEdit, QFileDialog,
     QStackedWidget, QFormLayout, QSpinBox, QDoubleSpinBox, QTextEdit)
 
+
+from Model.Generator.Generator import Generator
+from Controller.MVC_Controller import MVC_Controller
+import sys
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -64,6 +67,16 @@ if __name__ == "__main__":
             min-width: 180px; /* larghezza minima della dropdown */
         }
     """)
-    window = MainWindow()
+    window = MainWindow()   #Questa è da passare al controller MVC
+
+
+
+
+
+    gen = Generator()
+    controller = MVC_Controller(gen, window)
+
+    ###############################
+
     window.show()
     sys.exit(app.exec_())

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QWidget, QLabel, QVBoxLayout, QComboBox, QLineEdit, QStackedWidget, QFormLayout, QDoubleSpinBox)
-from DoS_frame import DosAttackConfig
+from View.DoS_frame import DosAttackConfig
 
 #Panel for manual insertion of configuration fields
 class ManualConfig(QWidget):

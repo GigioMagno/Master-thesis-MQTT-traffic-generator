@@ -4,13 +4,9 @@ import random, time
 import argparse, base64
 import os, signal, subprocess
 import threading
-import sys
-sys.path.append("../../Utils")
-sys.path.append("../MQTT_handler")	#Da cambiare nome a MQTT_handler perchè sembra un handler di controller per via del suo nome
-sys.path.append("../Covert")
-import NetSniffer
-import MQTT_handler
-import EvilTasks
+from Utils.NetSniffer import NetSniffer
+from Model.MQTT_handler.MQTT_handler import MQTT_handler
+from Model.Covert.EvilTasks import EvilTasks
 from datetime import datetime
 
 class Generator:
@@ -21,13 +17,14 @@ class Generator:
 		
 		self.broker_address = broker_address	#Broker address
 		self.port = port 						#Port
-		
+		self.csv_path = None
+		self.pcap_path = None
 		#Probabilmente vanno inseriti dentro MQTT_handler
 		#self.client_list = []					#devices
 		#self.thread_list = []					#threads linked to devices
 
 		self.MQTT_Handler = MQTT_handler(broker_address, port)
-		self.Evil_obj = EvilTasks(MQTT_Handler)
+		self.Evil_obj = EvilTasks(self.MQTT_Handler)
 		self.Sniffer = NetSniffer(port)
 		#self.capture = None						#capture process -> sostituito da NetSniffer	######OCCHIO######
 		self.devices_configs = []				#List of dictionaries for devices configs
@@ -37,10 +34,10 @@ class Generator:
 
 	##################################################################################################
 	# PCAP REPLAY FOR MQTT TRAFFIC SIMULATION 														 #
-	def pcap_simulation(self, pcap_path):
+	def pcap_simulation(self):
 		
 		try:
-			packets = rdpcap(pcap_path)
+			packets = rdpcap(self.pcap_path)
 		except Exception as e:
 			print("Error while pcap opening")
 			return None

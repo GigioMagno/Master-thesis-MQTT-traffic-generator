@@ -6,8 +6,8 @@ class MQTT_handler:
 
 	def __init__(self, broker_address, port):
 	
-		self.broker_address
-		self.port
+		self.broker_address = broker_address
+		self.port = port
 		self.client_lock = threading.Lock()		#Locks management
 		self.client_list = []					#list of devices (clients)
 		self.working_threads = []
@@ -22,7 +22,8 @@ class MQTT_handler:
 
 			client_id = "anonymous"
 
-		print(f"Received message "{message.payload.decode()}" from topic "{message.topic}" (Client: "{client_id}")")
+		print(f"Received message '{message.payload.decode()}' from topic '{message.topic}' (Client: '{client_id}')")
+
 
 	#MQTT client creation
 	def mqtt_client(self, client_id=None):
@@ -43,7 +44,7 @@ class MQTT_handler:
 		
 		client = mqtt_client(client_id)
 		
-		if client not None:
+		if client is not None:
 		
 			with self.client_lock:
 				self.client_list.append(client)
