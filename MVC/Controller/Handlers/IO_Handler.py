@@ -28,7 +28,7 @@ class IO_Handler:
 			df["MaxRange"] = df["MaxRange"].astype(float)
 			df["NumClients"] = df["NumClients"].astype(int)
 			df["Duration"] = df["Duration"].astype(float)
-			
+
 			self.Gen.devices_configs = df.to_dict("records")
 
 		except Exception as e:
@@ -42,7 +42,7 @@ class IO_Handler:
 			try:
 				
 				df = pd.DataFrame(self.Gen.devices_configs)
-				df.to_csv(csv_path, index = False)
+				df.to_csv(csv_path, index = False, sep=";")
 				return True
 
 			except Exception as e:
