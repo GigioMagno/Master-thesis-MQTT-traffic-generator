@@ -12,15 +12,10 @@ class MVC_Controller(object):
 		self.Configs_handler = Configs_Handler(self.Gen, self.View)	#Handler for commands load/store configs
 		self.build()
 
-	#def save_to_csv_action(self):
-		#self.Gen.csv_path
-
-
-
-
 
 
 	def build(self):	#links view and domain
 		self.View.load_csv.clicked.connect(self.Configs_handler.read_from_csv_action)
 		self.View.save_to_csv.clicked.connect(self.Configs_handler.save_to_csv_actions)
 		self.View.add_config.clicked.connect(self.Configs_handler.add_config_actions)
+		self.View.empirical_config.browse_button.clicked.connect(self.Configs_handler.read_from_pcap_action)

@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QFileDialog
 from datetime import datetime
 import os
 
+# This handler manages the actions performed by the buttons for 
+# the management of loading and saving configs
 class Configs_Handler(object):
 	
 	def __init__(self, Gen, View):
@@ -164,3 +166,13 @@ class Configs_Handler(object):
 		self.View.manual_config.dos_config.period_input.setValue(0.0)
 		self.View.manual_config.dos_config.num_clients_input.setValue(0)
 		self.View.manual_config.dos_config.duration_input.setValue(0.0)
+
+	def read_from_pcap_action(self):
+		pcap_path, _ = QFileDialog.getOpenFileName(self.View, "Open pcap File", "", "pcap Files (*.pcap);; All Files (*)")
+		if pcap_path is not None:
+			self.Gen.pcap_path = pcap_path
+			self.View.empirical_config.file_label.setText(f"{pcap_path}")
+			print(f"pcap_path: {pcap_path}")
+		else:
+			pcap_path = None
+			print("No pcap file loaded")

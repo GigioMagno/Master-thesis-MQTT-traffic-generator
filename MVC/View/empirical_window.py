@@ -11,7 +11,7 @@ class EmpiricalConfig(QWidget):
 
         self.browse_button = QPushButton("Browse PCAP File")
         self.file_label = QLabel("No file selected")
-        self.browse_button.clicked.connect(self.browse_file)
+        
 
         layout.addWidget(QLabel("Select PCAP File for Analysis:"))
         layout.addWidget(self.browse_button)
