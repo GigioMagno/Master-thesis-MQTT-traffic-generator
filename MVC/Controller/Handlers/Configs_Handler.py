@@ -18,6 +18,7 @@ class Configs_Handler(object):
 		#print(csv_path)		#DEBUGGING
 		if csv_path:
 			self.IO_handler.load_from_csv_devices_configs(csv_path)
+			self.Gen.csv_path = csv_path
 			print("csv correctly loaded")
 		else:
 			print("no csv file loaded")
@@ -33,12 +34,11 @@ class Configs_Handler(object):
 	def add_config_actions(self):
 		
 		selected_role = self.View.manual_config.role_selector.currentText()
-		config = {}
+		config = self.empty_config_dict()
 
 		if selected_role == "Publisher":
 
 			try:
-				config = self.empty_config_dict()
 				config["Topic"] = self.View.manual_config.publisher_config.topic_input.text()
 				device_timing = self.View.manual_config.publisher_config.device_timing_selector.currentText()
 				config["Type"] = device_timing
@@ -65,7 +65,7 @@ class Configs_Handler(object):
 
 				#Campo sui filtri da aggiungere se serve, parlarne coi prof
 				self.Gen.add_device_config(config)
-				self.clear_fields_publisher(self.View)
+				self.clear_fields_publisher()
 				print("Publisher configuration added!")
 
 			except Exception as e:
@@ -74,14 +74,12 @@ class Configs_Handler(object):
 		elif selected_role == "Subscriber":
 
 			try:
-				config = {}
-				config = self.empty_config_dict()
 				config["Topic"] = self.View.manual_config.subscriber_config.topic_input.text()
 				config["QoS"] = self.View.manual_config.subscriber_config.qos_selector.currentText()
 				config["Role"] = selected_role
 
 				self.Gen.add_device_config(config)
-				self.clear_fields_subscriber(self.View)
+				self.clear_fields_subscriber()
 				print("Subscriber configuration added!")
 
 			except Exception as e:
@@ -90,8 +88,6 @@ class Configs_Handler(object):
 		elif selected_role == "Denial of Service":
 			
 			try:
-				config = {}
-				config = self.empty_config_dict()
 				config["Topic"] = self.View.manual_config.dos_config.topic_input.text()
 				config["QoS"] = self.View.manual_config.dos_config.qos_selector.currentText()
 				config["Payload"] = self.View.manual_config.dos_config.payload_input.text()
@@ -111,7 +107,7 @@ class Configs_Handler(object):
 					config["Period"] = self.View.manual_config.dos_config.period_input.value()
 
 				self.Gen.add_device_config(config)
-				self.clear_fields_dos(self.View)
+				self.clear_fields_dos()
 				print("Denial of Service configuration added!")
 				
 			except Exception as e:
@@ -136,8 +132,7 @@ class Configs_Handler(object):
 		config["Role"] = None
 		return config
 
-	def clear_fields_publisher(self, View):
-		self.View = View
+	def clear_fields_publisher(self):
 		self.View.manual_config.publisher_config.topic_input.clear()
 		self.View.manual_config.publisher_config.qos_selector.setCurrentIndex(0)
 		self.View.manual_config.publisher_config.payload_input.clear()
@@ -150,13 +145,11 @@ class Configs_Handler(object):
 		self.View.manual_config.publisher_config.hidden_message_input.clear()
 		self.View.manual_config.publisher_config.embedding_method_selector.setCurrentIndex(0)
 
-	def clear_fields_subscriber(self, View):
-		self.View = View
+	def clear_fields_subscriber(self):
 		self.View.manual_config.subscriber_config.topic_input.clear()
 		self.View.manual_config.subscriber_config.qos_selector.setCurrentIndex(0)
 
-	def clear_fields_dos(self, View):
-		self.View = View
+	def clear_fields_dos(self):
 		self.View.manual_config.dos_config.topic_input.clear()
 		self.View.manual_config.dos_config.qos_selector.setCurrentIndex(0)
 		self.View.manual_config.dos_config.payload_input.clear()
@@ -170,7 +163,9 @@ class Configs_Handler(object):
 	def read_from_pcap_action(self):
 		pcap_path, _ = QFileDialog.getOpenFileName(self.View, "Open pcap File", "", "pcap Files (*.pcap);; All Files (*)")
 		if pcap_path is not None:
+			
 			self.Gen.pcap_path = pcap_path
+			self.Gen.devices_configs = []
 			self.View.empirical_config.file_label.setText(f"{pcap_path}")
 			print(f"pcap_path: {pcap_path}")
 		else:

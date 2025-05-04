@@ -8,6 +8,9 @@ from Utils.NetSniffer import NetSniffer
 from Model.MQTT_handler.MQTT_handler import MQTT_handler
 from Model.Covert.EvilTasks import EvilTasks
 from datetime import datetime
+from scapy.all import rdpcap
+from scapy.layers.inet import IP, TCP
+from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe, MQTTDisconnect
 
 class Generator:
 	
@@ -23,9 +26,9 @@ class Generator:
 		#self.client_list = []					#devices
 		#self.thread_list = []					#threads linked to devices
 
-		self.MQTT_Handler = MQTT_handler(broker_address, port)
+		self.MQTT_Handler = MQTT_handler(self.broker_address, self.port)
 		self.Evil_obj = EvilTasks(self.MQTT_Handler)
-		self.Sniffer = NetSniffer(port)
+		self.Sniffer = NetSniffer(self.port)
 		#self.capture = None						#capture process -> sostituito da NetSniffer	######OCCHIO######
 		self.devices_configs = []				#List of dictionaries for devices configs
 
@@ -39,7 +42,7 @@ class Generator:
 		try:
 			packets = rdpcap(self.pcap_path)
 		except Exception as e:
-			print("Error while pcap opening")
+			print(f"Error while pcap opening {e}")
 			return None
 
 		last_time = None
@@ -55,7 +58,7 @@ class Generator:
 						
 				try:
 					if MQTTConnect in mqtt_layer:
-
+						print("MQTTConnect trovato")
 						client =  self.MQTT_Handler.if_mqtt_connection(mqtt_layer, active_clients)
 
 					elif MQTTPublish in mqtt_layer:
@@ -81,7 +84,7 @@ class Generator:
 					last_time = current_time
 
 				except Exception as e:
-					print("pcap processing error")
+					print(f"pcap processing error {e}")
 
 		with self.MQTT_Handler.client_lock:
 			for client_id, client in list(active_clients.items()):
@@ -116,9 +119,6 @@ class Generator:
 	################################ RUN AND STOP GENERATOR ####################################
 
 	def run_generator(self):
-		
-		
-		self.Sniffer.run_tshark()
 
 		#self.MQTT_Handler.working_threads = []
 
@@ -126,16 +126,16 @@ class Generator:
 		#devo o caricare il file con i dati sintetici o caricare il file
 		#pcap. Quindi alla fine della fiera, nel controller devo mettere
 		#la logica che riempie quelle liste e poi runna il programma
-		if self.csv_path and self.devices_configs:
+		if self.csv_path or self.devices_configs:
 			
 			for i, config in enumerate(self.devices_configs):
 				
 				role = str(config.get("Role", "")).strip().lower()
 				event_type = str(config.get("Type", "")).strip().lower()
-
+				print(f"Config: {config}")
 				match role:
 
-					case "dos_attack":
+					case "denial of service":
 
 						self.Evil_obj.DoS_attack(config)
 
@@ -149,7 +149,7 @@ class Generator:
 							target_func = self.Evil_obj.periodic_publish
 						elif event_type == "event":
 
-							target_func = self.event_publish
+							target_func = self.Evil_obj.event_publish
 
 						if target_func:
 
@@ -183,16 +183,12 @@ class Generator:
 
 		elif self.pcap_path:
 
-			thread = threading.Thread(target=self.pcap_simulation, args=(self.pcap_path,))
+			thread = threading.Thread(target=self.pcap_simulation)
 			thread.daemon = True
 			self.MQTT_Handler.working_threads.append(thread)
 			thread.start()
 			return True
 
-		else:
-
-			self.Sniffer.stop_tshark()
-			return False
 
 	def stop_generator(self):
 		
@@ -214,19 +210,15 @@ class Generator:
 				client_id_string = client._client_id.decode() if client._client_id else "Unnamed"
 
 				try:
-					if client.is_disconnected():
 
-						client.disconnect()
-						client.loop_stop(timeout=1.0)
-					else:
-
-						client.loop_stop(timeout=1.0)
-
+					client.loop_stop()
+					client.disconnect()
+						
 				except Exception as e:
 
 					print(f"Client disconnection error: {client_id_string} : {e}")
 
-		self.Sniffer.stop_tshark()
+		#self.Sniffer.stop_tshark()
 		self.MQTT_Handler.working_threads = []
 
 		return True

@@ -39,7 +39,7 @@ class PublisherConfig(QWidget):
         layout.addRow("Topic:", self.topic_input)
 
         self.qos_selector = QComboBox()
-        self.qos_selector.addItems(["1", "2", "3"])
+        self.qos_selector.addItems(["0", "1", "2"])
         layout.addRow("Quality of Service:", self.qos_selector)
 
         self.payload_input = QLineEdit()
@@ -74,7 +74,7 @@ class PublisherConfig(QWidget):
         layout.addRow("Hidden Message:", self.hidden_message_input)
 
         self.embedding_method_selector = QComboBox()
-        self.embedding_method_selector.addItems(["Method A", "Method B", "Method C"])   #Choose proper methods
+        self.embedding_method_selector.addItems(["First letter", "ID"])   #Choose proper methods
         layout.addRow("Embedding Method:", self.embedding_method_selector)
 
         self.setLayout(layout)
@@ -113,7 +113,7 @@ class SubscriberConfig(QWidget):
         layout.addRow("Topic:", self.topic_input)
 
         self.qos_selector = QComboBox()
-        self.qos_selector.addItems(["1", "2", "3"])
+        self.qos_selector.addItems(["0", "1", "2"])
         layout.addRow("Quality of Service:", self.qos_selector)
 
         self.setLayout(layout)

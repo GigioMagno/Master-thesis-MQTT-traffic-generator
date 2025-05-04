@@ -18,16 +18,3 @@ class EmpiricalConfig(QWidget):
         layout.addWidget(self.file_label)
 
         self.setLayout(layout)
-
-    # Function for file browsing
-    def browse_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open PCAP File", "", "PCAP Files (*.pcap *.pcapng);;All Files (*)")
-
-        if file_path:
-
-            #self.pcap_path = file_path            
-            self.file_label.setText(file_path)
-        else:
-
-            #self.pcap_path = None
-            self.file_label.setText("No file selected")

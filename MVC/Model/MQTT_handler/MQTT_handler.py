@@ -1,5 +1,7 @@
 import paho.mqtt.client as mqtt
 import threading
+import time
+from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe
 
 class MQTT_handler:
 	
@@ -33,6 +35,16 @@ class MQTT_handler:
 			client.on_message = self.on_message
 			client.connect(self.broker_address, port=self.port, keepalive=60)
 			client.loop_start()
+
+			timeout = 3.0
+			while not client.is_connected() and timeout > 0:
+				time.sleep(0.1)
+				timeout -= 0.1
+
+			if not client.is_connected():
+				print(f"MQTT client {client_id} cannot establish the connection")
+				return None
+
 			return client
 		
 		except Exception as e:
@@ -42,7 +54,7 @@ class MQTT_handler:
 	#MQTT client registration: each client logs itself in thread/client list		
 	def mqtt_register_client(self, client_id=None):
 		
-		client = mqtt_client(client_id)
+		client = self.mqtt_client(client_id)
 		
 		if client is not None:
 		
@@ -60,7 +72,7 @@ class MQTT_handler:
 
 		try:
 			
-			info = client.publish(topic, payload, qos)
+			info = publisher.publish(topic, payload, qos)
 			if info.rc == mqtt.MQTT_ERR_SUCCESS:
 
 				print("Message sent")
@@ -79,8 +91,8 @@ class MQTT_handler:
 			return False
 
 		try:
-			info = subscriber.subscribe(topic, qos)
-			if info.rc == MQTT_ERR_SUCCESS:
+			info, mid = subscriber.subscribe(topic, qos)
+			if info == mqtt.MQTT_ERR_SUCCESS:
 
 				print("Subscription completed")
 				return True
@@ -98,6 +110,7 @@ class MQTT_handler:
 	def if_mqtt_connection(self, mqtt_layer, active_clients):
 						
 		client_id = mqtt_layer[MQTTConnect].clientId.decode("utf-8", errors="ignore")
+		print(f"client_id: {client_id}")
 		if client_id not in active_clients or not active_clients[client_id].is_connected():
 							
 			client = self.mqtt_register_client(client_id)
@@ -114,10 +127,11 @@ class MQTT_handler:
 	def if_mqtt_publish(self, mqtt_layer, active_clients):
 		
 		last_client = None
-
+		print(f"Qua entro. Active clients: {active_clients}")
 		if active_clients:
 
 			last_client = list(active_clients.values())[-1]
+			print(f"last_client {last_client}")			
 
 		if last_client:
 
@@ -126,6 +140,8 @@ class MQTT_handler:
 			qos = mqtt_layer.QOS
 			payload = mqtt_publish.value
 			self.mqtt_publish_msg(last_client, topic, qos, payload)
+			print(f"Pubblico su Topic' {topic} con payload {payload}")
+
 			return last_client
 		
 		return None

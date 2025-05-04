@@ -12,11 +12,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Device Configuration")
         self.setGeometry(100, 100, 1000, 600)
 
-        #Paths...
-        #self.load_csv_path
-        #self.save_csv_path
-
-
         # Main layout
         main_layout = QHBoxLayout()
         central_widget = QWidget()
