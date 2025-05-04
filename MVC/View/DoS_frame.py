@@ -14,7 +14,7 @@ class DosAttackConfig(QWidget):
 
         #QoS selector
         self.qos_selector = QComboBox()
-        self.qos_selector.addItems(["1", "2", "3"])
+        self.qos_selector.addItems(["0", "1", "2"])
         layout.addRow("Quality of Service:", self.qos_selector)
 
         #Payload textarea
@@ -23,18 +23,8 @@ class DosAttackConfig(QWidget):
 
         #Timing selector
         self.device_timing_selector = QComboBox()
-        self.device_timing_selector.addItems(["Event", "Periodic"])
+        self.device_timing_selector.addItems(["Periodic"])
         layout.addRow("Device Timing:", self.device_timing_selector)
-
-        #Min time spinner
-        self.min_time_input = QDoubleSpinBox()
-        self.min_time_input.setSuffix(" s")
-        layout.addRow("Minimum Time Range:", self.min_time_input)
-
-        #Max time spinner
-        self.max_time_input = QDoubleSpinBox()
-        self.max_time_input.setSuffix(" s")
-        layout.addRow("Maximum Time Range:", self.max_time_input)
 
         #Period spinner
         self.period_input = QDoubleSpinBox()
@@ -57,11 +47,4 @@ class DosAttackConfig(QWidget):
         self.update_timing_fields(self.device_timing_selector.currentText())
 
     def update_timing_fields(self, timing):
-        if timing == "Event":
-            self.min_time_input.show()
-            self.max_time_input.show()
-            self.period_input.hide()
-        else:
-            self.min_time_input.hide()
-            self.max_time_input.hide()
             self.period_input.show()

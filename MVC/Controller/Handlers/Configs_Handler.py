@@ -96,15 +96,7 @@ class Configs_Handler(object):
 				config["NumClients"] = self.View.manual_config.dos_config.num_clients_input.value()
 				config["Duration"] = self.View.manual_config.dos_config.duration_input.value()
 				config["Role"] = selected_role
-
-				if device_timing == "Event":
-					
-					config["MinRange"] = self.View.manual_config.dos_config.min_time_input.value()
-					config["MaxRange"] = self.View.manual_config.dos_config.max_time_input.value()
-
-				elif device_timing == "Periodic":
-
-					config["Period"] = self.View.manual_config.dos_config.period_input.value()
+				config["Period"] = self.View.manual_config.dos_config.period_input.value()
 
 				self.Gen.add_device_config(config)
 				self.clear_fields_dos()
@@ -154,8 +146,6 @@ class Configs_Handler(object):
 		self.View.manual_config.dos_config.qos_selector.setCurrentIndex(0)
 		self.View.manual_config.dos_config.payload_input.clear()
 		self.View.manual_config.dos_config.device_timing_selector.setCurrentIndex(0)
-		self.View.manual_config.dos_config.min_time_input.setValue(0.0)
-		self.View.manual_config.dos_config.max_time_input.setValue(0.0)
 		self.View.manual_config.dos_config.period_input.setValue(0.0)
 		self.View.manual_config.dos_config.num_clients_input.setValue(0)
 		self.View.manual_config.dos_config.duration_input.setValue(0.0)
