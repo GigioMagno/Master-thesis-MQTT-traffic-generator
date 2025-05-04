@@ -10,7 +10,39 @@ This application generates MQTT traffic simulating normal (publish/subscribe) an
 - MVC architecture in order to guarantee modularity, scalability and simpler maintainment of the source code.
 - Intuitive GUI designed with PyQt.
 ## Project architecture
-``Insert project tree``
+```
+MVC
+├── Controller
+│   ├── Handlers
+│   │   ├── Configs_Handler.py
+│   │   ├── IO_Handler.py
+│   │   └── __init__.py
+│   ├── MVC_Controller.py
+│   └── __init__.py
+├── Model
+│   ├── Covert
+│   │   ├── EvilTasks.py
+│   │   └── __init__.py
+│   ├── Generator
+│   │   ├── Generator.py
+│   │   └── __init__.py
+│   └── MQTT_handler
+│       ├── MQTT_handler.py
+│       └── __init__.py
+├── Utils
+│   ├── Distributions.py
+│   ├── NetSniffer.py
+│   └── __init__.py
+├── View
+│   ├── DoS_frame.py
+│   ├── empirical_window.py
+│   ├── main_window.py
+│   ├── manual_config.py
+│   └── __init__.py
+├── view_test.py
+└── .DS_Store
+
+```
 ### Model
 Manages the domain logic and the communications using MQTT protocol:
 - ``Generator.py``: contains the modelization and the logic that describes the behaviour of the Generator.
@@ -31,3 +63,30 @@ Manages interactions between user (View) and domain logic (Model):
 Support classes:
 - ``NetSniffer.py``: allows the capture of the generated traffic.
 - ``Distributions.py``: manages the statistical distributions used in the generation of the traffic.
+# Extra libraries to install
+It's necessary install the libraries required by the [original project](https://github.com/CamillaCP/MQTT-traffic-generator/tree/main). Also it's mandatory install:
+- ``PyQt6``: for the Graphical User Interface
+- ``numpy``: mandatory for statistical distributions
+```pip install PyQt6 numpy```
+# Execution
+```python MVC/view_test.py```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
