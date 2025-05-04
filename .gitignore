@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# PyQt / UI
+*.pyc
+__pycache__/
+
+# Sistemi operativi
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python environments
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# File di log / cache
+*.log
+*.csv
+*.pcap
+.cache/
+__pycache__/
+
+# Escludi i file generati dal tuo programma
+MVC/*.csv
+MVC/*.pcap
