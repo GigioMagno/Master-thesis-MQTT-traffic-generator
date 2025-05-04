@@ -1,0 +1,5 @@
+Topic;Type;QoS;Payload;Period;MinRange;MaxRange;Distribution;DeviceType;HiddenMessage;EmbeddingMethod;NumClients;Duration;Role
+Piero/casina/fornino;Periodic;0;temp 33300000;2.0;;;Gaussian;Counterfeit;Polpette;First letter;;;Publisher
+Casina/microonde;Periodic;1;radiattività 2000000;4.0;;;Gaussian;Legit;;;;;Publisher
+Casina/microonde;;2;;;;;;;;;;;Subscriber
+CASINA;Periodic;1;SKLAJDLKDJF;1.0;;;;;;;9.0;10.0;Denial of Service
