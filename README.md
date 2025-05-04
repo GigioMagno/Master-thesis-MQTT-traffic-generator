@@ -39,8 +39,7 @@ MVC
 │   ├── main_window.py
 │   ├── manual_config.py
 │   └── __init__.py
-├── view_test.py
-└── .DS_Store
+└── view_test.py 
 
 ```
 ### Model
