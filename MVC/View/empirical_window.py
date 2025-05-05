@@ -1,3 +1,8 @@
+##################################### CLASS #############################################
+################################ EMPIRICAL_WINDOW #######################################
+# CURRENT # 
+# This class is designed to manage a frame for the Empirical mode.
+
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog)
 
 # Panel for Empirical mode

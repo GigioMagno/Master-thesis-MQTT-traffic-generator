@@ -1,3 +1,11 @@
+##################################### CLASSES #############################################
+################## MANUAL_CONFIG, PUBLISHER_CONFIG, SUBSCRIBER_CONFIG #####################
+# CURRENT # 
+# This set of classes is designed to manage frames for manual configuration (it contains all
+# the necessary to read the fields filled by hand by the user).
+# This frame manages other two subframes to manage subscriber configurations and publisher
+# configurations.
+
 from PyQt5.QtWidgets import (QWidget, QLabel, QVBoxLayout, QComboBox, QLineEdit, QStackedWidget, QFormLayout, QDoubleSpinBox)
 from View.DoS_frame import DosAttackConfig
 
@@ -29,8 +37,11 @@ class ManualConfig(QWidget):
         self.role_selector.currentIndexChanged.connect(self.role_stack.setCurrentIndex)
 
 
+
+
 #Publisher panel
 class PublisherConfig(QWidget):
+
     def __init__(self):
         super().__init__()
         layout = QFormLayout()
@@ -85,6 +96,9 @@ class PublisherConfig(QWidget):
         self.update_timing_fields(self.device_timing_selector.currentText())
         self.update_device_type_fields(self.device_type_selector.currentText())
 
+
+
+
     def update_timing_fields(self, timing):
         if timing == "Event":
             self.min_time_input.show()
@@ -95,6 +109,10 @@ class PublisherConfig(QWidget):
             self.max_time_input.hide()
             self.period_input.show()
 
+
+
+
+
     def update_device_type_fields(self, device_type):
         if device_type == "Counterfeit":
             self.hidden_message_input.show()
@@ -102,6 +120,9 @@ class PublisherConfig(QWidget):
         else:
             self.hidden_message_input.hide()
             self.embedding_method_selector.hide()
+
+
+
 
 #Subscriber panel
 class SubscriberConfig(QWidget):

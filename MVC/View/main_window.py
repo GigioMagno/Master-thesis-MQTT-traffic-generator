@@ -1,3 +1,9 @@
+##################################### CLASS #############################################
+################################## MAIN_WINDOW ##########################################
+# CURRENT # 
+# This class is designed to manage the main window. An auxiliary function has been
+# built in order to have a graphical transition between panels
+
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QPushButton,
     QVBoxLayout, QHBoxLayout, QStackedWidget, QFileDialog
@@ -63,6 +69,9 @@ class MainWindow(QMainWindow):
         self.manual_config_button.clicked.connect(lambda: self.switch_page(0))
         self.empirical_mode_button.clicked.connect(lambda: self.switch_page(1))
         
+    
+
+
     # Switch page given index
     def switch_page(self, index):
         current_index = self.stack.currentIndex()

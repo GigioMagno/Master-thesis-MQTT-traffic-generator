@@ -1,10 +1,15 @@
+##################################### CLASS #############################################
+################################## MQTT_Handler #########################################
+# CURRENT # 
+# This class manages all the features necessary for MQTT protocol: publish a message,
+# subscribe to a topic, check connection, create a MQTT client.
+
 import paho.mqtt.client as mqtt
 import threading
 import time
 from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe
 
-class MQTT_handler:
-	
+class MQTT_handler:	
 
 	def __init__(self, broker_address, port):
 	
@@ -13,6 +18,8 @@ class MQTT_handler:
 		self.client_lock = threading.Lock()		#Locks management
 		self.client_list = []					#list of devices (clients)
 		self.working_threads = []
+
+
 
 	#Action to perform whenever a subscriber receives a message. This method is required by client object
 	def on_message(self, client, userdata, message):
@@ -25,6 +32,8 @@ class MQTT_handler:
 			client_id = "anonymous"
 
 		print(f"Received message '{message.payload.decode()}' from topic '{message.topic}' (Client: '{client_id}')")
+
+
 
 
 	#MQTT client creation
@@ -42,6 +51,7 @@ class MQTT_handler:
 				timeout -= 0.1
 
 			if not client.is_connected():
+				
 				print(f"MQTT client {client_id} cannot establish the connection")
 				return None
 
@@ -51,6 +61,9 @@ class MQTT_handler:
 			print("MQTT client connection error ", {e})
 			return None
 	
+
+
+
 	#MQTT client registration: each client logs itself in thread/client list		
 	def mqtt_register_client(self, client_id=None):
 		
@@ -61,6 +74,9 @@ class MQTT_handler:
 			with self.client_lock:
 				self.client_list.append(client)
 		return client
+
+
+
 
 	#MQTT message publish method: return true iff the message has been sent correctly
 	def mqtt_publish_msg(self, publisher, topic, qos, payload):
@@ -83,10 +99,14 @@ class MQTT_handler:
 			return False
 		return False
 
+
+
+
 	#MQTT topic subscription: return true iff the subscription is successful, false otherwise
 	def mqtt_topic_subscription(self, subscriber, topic, qos):
 		
 		if subscriber is None or not subscriber.is_connected():
+
 			print("The subscriber does not exists or it is not connected")
 			return False
 
@@ -103,8 +123,6 @@ class MQTT_handler:
 
 
 
-	########## Methods for MQTT operations checking ##########
-	########## 	  Used for pcap file processing	  	##########
 
 	#mqtt connection action
 	def if_mqtt_connection(self, mqtt_layer, active_clients):
@@ -122,6 +140,9 @@ class MQTT_handler:
 
 			client = active_clients[client_id]
 			return client
+
+
+
 
 	#mqtt publishing action
 	def if_mqtt_publish(self, mqtt_layer, active_clients):
@@ -146,6 +167,9 @@ class MQTT_handler:
 		
 		return None
 
+
+
+
 	#mqtt subscription action
 	def if_mqtt_subscription(self, mqtt_layer, active_clients):
 		
@@ -167,6 +191,9 @@ class MQTT_handler:
 			return subscriber
 
 		return None
+
+
+
 
 	#mqtt disconnection action
 	def if_mqtt_disconnection(self, mqtt_layer, active_clients):

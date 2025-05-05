@@ -1,10 +1,14 @@
+##################################### CLASS #############################################
+################################### VIEW_TEST ###########################################
+# CURRENT # 
+# This class is the entry point of the entire program. It has some configurations for the
+# graphic components, and then it runs the generator.
+
 from View.main_window import MainWindow
 from PyQt5.QtCore import Qt, QPropertyAnimation, QPoint, QEasingCurve
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton, QLabel,
     QVBoxLayout, QHBoxLayout, QComboBox, QLineEdit, QFileDialog,
     QStackedWidget, QFormLayout, QSpinBox, QDoubleSpinBox, QTextEdit)
-
-
 from Model.Generator.Generator import Generator
 from Controller.MVC_Controller import MVC_Controller
 import sys
@@ -67,16 +71,9 @@ if __name__ == "__main__":
             min-width: 180px; /* larghezza minima della dropdown */
         }
     """)
-    window = MainWindow()   #Questa è da passare al controller MVC
-
-
-
-
-
+    window = MainWindow()
     gen = Generator()
     controller = MVC_Controller(gen, window)
-
-    ###############################
 
     window.show()
     sys.exit(app.exec_())

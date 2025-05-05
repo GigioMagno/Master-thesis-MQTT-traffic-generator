@@ -1,3 +1,14 @@
+##################################### CLASS #############################################
+################################### GENERATOR ###########################################
+# CURRENT # 
+# This class is designed to represent the core of the model. The generator is a software
+# abstraction which keep tracks of files to use, devices to simulate and other params...
+# The only three main methods that contains are pcap_simulation, stop_generator and
+# run_generator. The first method simulates the traffic contained in a pcap file, the
+# run_generator method is necessary to run the generator and execute the simulation of 
+# a particular configuration. The stop_generator is necessary to stop the currently
+# working threads and close the open connections.
+
 import pandas as pd
 import numpy as np
 import random, time
@@ -13,30 +24,20 @@ from scapy.layers.inet import IP, TCP
 from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe, MQTTDisconnect
 
 class Generator:
-	
-	# CLASS CONSTRUCTOR
 
 	def __init__(self, broker_address="test.mosquitto.org", port=1883):
 		
-		self.broker_address = broker_address	#Broker address
-		self.port = port 						#Port
+		self.broker_address = broker_address
+		self.port = port
 		self.csv_path = None
 		self.pcap_path = None
-		#Probabilmente vanno inseriti dentro MQTT_handler
-		#self.client_list = []					#devices
-		#self.thread_list = []					#threads linked to devices
-
 		self.MQTT_Handler = MQTT_handler(self.broker_address, self.port)
 		self.Evil_obj = EvilTasks(self.MQTT_Handler)
 		self.Sniffer = NetSniffer(self.port)
-		#self.capture = None						#capture process -> sostituito da NetSniffer	######OCCHIO######
 		self.devices_configs = []				#List of dictionaries for devices configs
 
 
-
-
-	##################################################################################################
-	# PCAP REPLAY FOR MQTT TRAFFIC SIMULATION 														 #
+	#simulation from pcap file
 	def pcap_simulation(self):
 		
 		try:
@@ -94,38 +95,35 @@ class Generator:
 					client.loop_stop()
 
 				if client in self.MQTT_Handler.client_list:
-					self.MQTT_Handler.client_list.remove(client)														   #
-	##################################################################################################
+					self.MQTT_Handler.client_list.remove(client)
 	
 
-	#################################### UTILITY METHODS #######################################
 
-	# GET DEVICES CONFIGS
+
 	def get_devices_configs(self):
 		
 		return self.devices_configs
 
-	# CLEAR DEVICES CONFIGS
+
+
+
 	def clear_devices_configs(self):
 		
 		self.devices_configs = None
 
-	# ADDS A DICTIONARY TO A LIST OF DEVICES CONFIGS
+
+
+
 	def add_device_config(self, config_dict):
 		
 		self.devices_configs.append(config_dict)
 
 
-	################################ RUN AND STOP GENERATOR ####################################
+
 
 	def run_generator(self):
 
-		#self.MQTT_Handler.working_threads = []
-
-		#Faccio questo controllo perchè prima di runnare il generatore,
-		#devo o caricare il file con i dati sintetici o caricare il file
-		#pcap. Quindi alla fine della fiera, nel controller devo mettere
-		#la logica che riempie quelle liste e poi runna il programma
+		#Necessary check in order to establish if the generator has the proper data to run
 		if self.csv_path or self.devices_configs:
 			
 			for i, config in enumerate(self.devices_configs):
@@ -133,6 +131,7 @@ class Generator:
 				role = str(config.get("Role", "")).strip().lower()
 				event_type = str(config.get("Type", "")).strip().lower()
 				print(f"Config: {config}")
+				### IMPORTANTE: Provare a togliere questo match case usando un dictionary e try/catch. dos, publisher, subscriber... sono le chiavi. I valori sono le corrispondenti funzioni da usare
 				match role:
 
 					case "denial of service":
@@ -190,9 +189,9 @@ class Generator:
 			return True
 
 
+
+	#Stop all the working threads after 2 seconds for expired time
 	def stop_generator(self):
-		
-		#Stop all the working threads after 2 seconds for expired time
 
 		for thread in self.MQTT_Handler.working_threads:
 			
@@ -218,7 +217,6 @@ class Generator:
 
 					print(f"Client disconnection error: {client_id_string} : {e}")
 
-		#self.Sniffer.stop_tshark()
 		self.MQTT_Handler.working_threads = []
 
 		return True

@@ -1,8 +1,15 @@
+##################################### CLASS #############################################
+################################### DOS_FRAME ###########################################
+# CURRENT # 
+# This class is designed to manage a frame for the Denial of Service attack.
+
 from PyQt5.QtWidgets import (
 	QWidget, QFormLayout, QLineEdit, QComboBox, QDoubleSpinBox, QSpinBox
 	)
 
-# Panel for Denial of Service attack
+
+
+
 class DosAttackConfig(QWidget):
     def __init__(self):
         super().__init__()
@@ -45,6 +52,9 @@ class DosAttackConfig(QWidget):
 
         self.device_timing_selector.currentTextChanged.connect(self.update_timing_fields)
         self.update_timing_fields(self.device_timing_selector.currentText())
+
+
+
 
     def update_timing_fields(self, timing):
             self.period_input.show()
