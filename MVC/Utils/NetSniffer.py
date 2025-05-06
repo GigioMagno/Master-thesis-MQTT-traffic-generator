@@ -1,3 +1,9 @@
+##################################### CLASS #############################################
+################################## NET_SNIFFER ##########################################
+# CURRENT # 
+# This class contains two method: the first runs tshark to capture packets on the network
+# the second stops the capture. The capture is started as a new sub process.
+
 import subprocess, os, signal
 import time
 from datetime import datetime
@@ -11,9 +17,8 @@ class NetSniffer:
 		self.port = port
 
 
-	############################### TSHARK START AND STOP ####################################
 
-	# RUN TSHARK CAPTURE PROCESS
+
 	def run_tshark(self):
 		
 		if self.capture_process is None:				#if no capture_process is running...
@@ -27,27 +32,26 @@ class NetSniffer:
 		else:
 			print("tshark is running...")
 			return
-			
-	# STOP TSHARK CAPTURE PROCESS
+
+
+
+
 	def stop_tshark(self):
 
 		if self.capture_process is not None:			#if there's a capture_process process running...
 														#terminate it, but if it doesn't terminate within 5 secs, kill it
 			try:
-				print("Provo a killare il processo...")
+				print("Killing tshark")
 				os.killpg(os.getpgid(self.capture_process.pid), signal.SIGTERM)
-				print("Do 5 secondi al processo...")
 				self.capture_process.wait(timeout=5)
-				print("Ho killato il processo...")
+				print("Killed tshark")
 			
 			except subprocess.TimeoutExpired:
-				print("Devo killare il processo...")
 				os.killpg(os.getpgid(self.capture_process.pid), signal.SIGKILL)
-				print("processo killato")
+				print("Killed tshark")
 
 			except Exception:
 
 				print("tshark crashed")
 			
 			self.capture_process = None
-	

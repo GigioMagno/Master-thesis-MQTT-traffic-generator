@@ -1,3 +1,13 @@
+##################################### CLASS #############################################
+################################# DISTRIBUTIONS #########################################
+# CURRENT # 
+# This class contains static methods that are used to generate random number over the
+# support [inf, sup]. At the moment uniform, gaussian and exponential distributions are
+# implemented.
+# Static method have been chosen because is not necessary instantiate an object 
+# distribution and also because it is not necessary access to the state of the object.
+
+
 import numpy as np
 import math
 
@@ -13,6 +23,9 @@ class Distributions:
 
 			return default
 
+
+
+
 	@staticmethod
 	def draw_from_exponential(inf, sup, default=1.0):
 		
@@ -24,6 +37,9 @@ class Distributions:
 		else:
 
 			return default
+
+
+
 
 	@staticmethod
 	def draw_from_gaussian(inf, sup, default=1.0):

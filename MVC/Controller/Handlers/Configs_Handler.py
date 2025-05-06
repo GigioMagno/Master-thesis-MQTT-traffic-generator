@@ -1,35 +1,58 @@
+##################################### CLASS #############################################
+################################ CONFIGS_HANDLER ########################################
+# CURRENT # 
+# This handler manages the actions performed by the buttons of the view for the
+# management of loading and saving configs. The main implemented functions allow to 
+# read a pcap file, read a csv file, save a csv file and add a single device 
+# configuration.
+# This class is a further abstraction respect to IO_Handler. This class manages both view
+# and lower level features, but low level features are directly managed by IO_Handler
+
 from Controller.Handlers.IO_Handler import IO_Handler
 from PyQt5.QtWidgets import QFileDialog
 from datetime import datetime
 import os
 
-# This handler manages the actions performed by the buttons for 
-# the management of loading and saving configs
+
+
+
 class Configs_Handler(object):
 	
 	def __init__(self, Gen, View):
 		
 		self.Gen = Gen
 		self.View = View
-		self.IO_handler = IO_Handler(self.Gen)	#Handler for IO management
+		self.IO_handler = IO_Handler(self.Gen)
+
+
+
 
 	def read_from_csv_action(self):
+
 		csv_path, _ = QFileDialog.getOpenFileName(self.View, "Open csv File", "", "csv Files (*.csv);; All Files (*)")
-		#print(csv_path)		#DEBUGGING
 		if csv_path:
+
 			self.IO_handler.load_from_csv_devices_configs(csv_path)
 			self.Gen.csv_path = csv_path
 			print("csv correctly loaded")
 		else:
+
 			print("no csv file loaded")
 
+
+
+
 	def save_to_csv_actions(self):
+
 		directory = QFileDialog.getExistingDirectory()
-		#print(f"The directory's path is: {directory}") 	#DEBUGGING
 		if directory:
+
 			timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 			csv_path = os.path.join(directory, f"export_{timestamp}.csv")
 			self.IO_handler.save_in_csv_devices_configs(csv_path)
+
+
+
 
 	def add_config_actions(self):
 		
@@ -63,7 +86,6 @@ class Configs_Handler(object):
 					config["HiddenMessage"] = self.View.manual_config.publisher_config.hidden_message_input.text()
 					config["EmbeddingMethod"] = self.View.manual_config.publisher_config.embedding_method_selector.currentText()
 
-				#Campo sui filtri da aggiungere se serve, parlarne coi prof
 				self.Gen.add_device_config(config)
 				self.clear_fields_publisher()
 				print("Publisher configuration added!")
@@ -105,6 +127,9 @@ class Configs_Handler(object):
 			except Exception as e:
 				print(f"Denial of Service: {e}")
 
+
+
+
 	def empty_config_dict(self):
 		
 		config = {}
@@ -124,7 +149,11 @@ class Configs_Handler(object):
 		config["Role"] = None
 		return config
 
+
+
+
 	def clear_fields_publisher(self):
+		
 		self.View.manual_config.publisher_config.topic_input.clear()
 		self.View.manual_config.publisher_config.qos_selector.setCurrentIndex(0)
 		self.View.manual_config.publisher_config.payload_input.clear()
@@ -137,11 +166,19 @@ class Configs_Handler(object):
 		self.View.manual_config.publisher_config.hidden_message_input.clear()
 		self.View.manual_config.publisher_config.embedding_method_selector.setCurrentIndex(0)
 
+
+
+
 	def clear_fields_subscriber(self):
+		
 		self.View.manual_config.subscriber_config.topic_input.clear()
 		self.View.manual_config.subscriber_config.qos_selector.setCurrentIndex(0)
 
+
+
+
 	def clear_fields_dos(self):
+		
 		self.View.manual_config.dos_config.topic_input.clear()
 		self.View.manual_config.dos_config.qos_selector.setCurrentIndex(0)
 		self.View.manual_config.dos_config.payload_input.clear()
@@ -150,7 +187,11 @@ class Configs_Handler(object):
 		self.View.manual_config.dos_config.num_clients_input.setValue(0)
 		self.View.manual_config.dos_config.duration_input.setValue(0.0)
 
+
+
+
 	def read_from_pcap_action(self):
+		
 		pcap_path, _ = QFileDialog.getOpenFileName(self.View, "Open pcap File", "", "pcap Files (*.pcap);; All Files (*)")
 		if pcap_path is not None:
 			
@@ -159,5 +200,6 @@ class Configs_Handler(object):
 			self.View.empirical_config.file_label.setText(f"{pcap_path}")
 			print(f"pcap_path: {pcap_path}")
 		else:
+			
 			pcap_path = None
 			print("No pcap file loaded")

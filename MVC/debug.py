@@ -1,3 +1,8 @@
+##################################### SCRIPT ##########################################
+##################################### DEBUG ###########################################
+# CURRENT # 
+# This script has been used to perform debugging and detect MQTTConnect in pcap file
+
 from scapy.all import rdpcap
 from scapy.contrib.mqtt import MQTT, MQTTConnect
 
