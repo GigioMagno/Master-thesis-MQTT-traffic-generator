@@ -119,7 +119,7 @@ class EvilTasks:
 			embedding_method = str(config.get("EmbeddingMethod", "first letter")).strip().lower()
 		
 		except Exception as e:
-			print(f"Error while collecting data from configuration {e}")
+			print(f"Error while collecting data from configuration: {e}")
 
 		if device_type == "counterfeit" and covert_message:
 			

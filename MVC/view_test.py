@@ -72,7 +72,12 @@ if __name__ == "__main__":
         }
     """)
     window = MainWindow()
-    gen = Generator()
+    #gen = Generator(broker_address="broker.hivemq.com", port=1883)
+    #gen = Generator(broker_address="public.mqtthq.com")
+    #gen = Generator(port=80)
+    #gen = Generator(broker_address="test.mosquitto.org", port=1883, interface="utun8") #SE VPN ON
+    gen = Generator(broker_address="test.mosquitto.org", port=1883)  #SE VPN OFF INTERFACCIA DA SETTARE en0 (WIFI-default)
+    #gen = Generator(broker_address="127.0.0.1", port=1883, interface="lo0")
     controller = MVC_Controller(gen, window)
 
     window.show()

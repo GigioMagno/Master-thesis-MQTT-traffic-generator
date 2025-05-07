@@ -37,15 +37,17 @@ class MQTT_handler:
 
 
 	#MQTT client creation
-	def mqtt_client(self, client_id=None):
+	def mqtt_client(self, client_id=None, timeout=10.0):
 		
 		try:
+			#client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id, transport="websockets")
 			client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id)
+			client.enable_logger()
 			client.on_message = self.on_message
 			client.connect(self.broker_address, port=self.port, keepalive=60)
 			client.loop_start()
 
-			timeout = 3.0
+			#timeout = 3.0
 			while not client.is_connected() and timeout > 0:
 				time.sleep(0.1)
 				timeout -= 0.1
@@ -111,6 +113,7 @@ class MQTT_handler:
 			return False
 
 		try:
+			print("AIUTATEMI VI PREGO")
 			info, mid = subscriber.subscribe(topic, qos)
 			if info == mqtt.MQTT_ERR_SUCCESS:
 
@@ -148,7 +151,7 @@ class MQTT_handler:
 	def if_mqtt_publish(self, mqtt_layer, active_clients):
 		
 		last_client = None
-		print(f"Qua entro. Active clients: {active_clients}")
+		print(f"QUA ENTRO: Active clients: {active_clients}")
 		if active_clients:
 
 			last_client = list(active_clients.values())[-1]
@@ -186,6 +189,7 @@ class MQTT_handler:
 
 				topic = subscription_topic[0].decode("utf-8", errors="ignore")
 				qos = subscription_topic[1]
+				print(f"quality of service subscriber {qos}")
 				self.mqtt_topic_subscription(subscriber, topic, qos)
 
 			return subscriber

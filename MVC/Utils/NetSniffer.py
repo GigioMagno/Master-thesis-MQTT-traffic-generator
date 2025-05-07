@@ -11,11 +11,11 @@ from datetime import datetime
 
 class NetSniffer:
 	
-	def __init__(self, port=443):
+	def __init__(self, port=443, interface="en0"):
 		
 		self.capture_process = None
 		self.port = port
-
+		self.interface = interface
 
 
 
@@ -24,10 +24,14 @@ class NetSniffer:
 		if self.capture_process is None:				#if no capture_process is running...
 														#start a new capture_process process
 			try:
-				self.capture_process = subprocess.Popen(["tshark", "-i", "en0", "-f", f"tcp port {self.port}", "-w", f"generated_traffic_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pcap"], preexec_fn=os.setsid)
+				self.capture_process = subprocess.Popen(["tshark", "-i", f"{self.interface}", "-f", f"tcp port {self.port}", "-w", f"generated_traffic_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pcap"], preexec_fn=os.setsid)
+				print(f"La porta è: {self.port}")
+				print(["COMMAND:", "tshark", "-i", f"{self.interface}", "-f", f"tcp port {self.port}", "-w", f"generated_traffic_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pcap"])
+				#self.capture_process = subprocess.Popen(["tshark", "-i", "en0", "-f", f"port {self.port}", "-w", f"generated_traffic_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pcap"], preexec_fn=os.setsid)
+				#self.capture_process = subprocess.Popen(["tshark", "-i", "en0", "-w", f"generated_traffic_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pcap"], preexec_fn=os.setsid)
 				print(f"Reference process: {self.capture_process}")
 			except Exception as e:
-				print("Error running tshark")
+				print(f"Error running tshark: {e}")
 				self.capture_process = None
 		else:
 			print("tshark is running...")

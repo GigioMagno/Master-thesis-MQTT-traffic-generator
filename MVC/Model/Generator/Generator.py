@@ -25,15 +25,16 @@ from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe, MQ
 
 class Generator:
 
-	def __init__(self, broker_address="test.mosquitto.org", port=1883):
+	def __init__(self, broker_address="test.mosquitto.org", port=1883, interface="en0"):
 		
 		self.broker_address = broker_address
 		self.port = port
+		self.interface = interface
 		self.csv_path = None
 		self.pcap_path = None
 		self.MQTT_Handler = MQTT_handler(self.broker_address, self.port)
 		self.Evil_obj = EvilTasks(self.MQTT_Handler)
-		self.Sniffer = NetSniffer(self.port)
+		self.Sniffer = NetSniffer(self.port, self.interface)
 		self.devices_configs = []				#List of dictionaries for devices configs
 
 
@@ -166,6 +167,7 @@ class Generator:
 						client = self.MQTT_Handler.mqtt_register_client(client_id)
 						topic = config.get("Topic")
 						qos = int(config.get("QoS", 0))
+						print(f"AAAA QOS: {qos}")
 
 						if topic:
 
