@@ -69,7 +69,8 @@ It's necessary install the libraries required by the [original project](https://
 ```pip install PyQt6 numpy```
 # Execution
 ```python MVC/view_test.py```
-
+Please, note that if you're running a VPN service, the interface to capture the traffic must be changed according to your operating system.
+In case of macOS, set in the generator constructor in the script ```view_test.py``` on the interface ```utun8```.
 
 
 
