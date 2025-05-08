@@ -36,7 +36,9 @@ class Generator:
 		self.Evil_obj = EvilTasks(self.MQTT_Handler)
 		self.Sniffer = NetSniffer(self.port, self.interface)
 		self.devices_configs = []				#List of dictionaries for devices configs
+		self.supported_protocols = {"MQTTv311":4, "MQTTv5":5}
 
+	#Fare lettura del protocollo dal pacchetto raw, oppure amen, fa niente e il protocollo rimane fisso per la simulazione
 
 	#simulation from pcap file
 	def pcap_simulation(self):
@@ -131,18 +133,22 @@ class Generator:
 				
 				role = str(config.get("Role", "")).strip().lower()
 				event_type = str(config.get("Type", "")).strip().lower()
+				read_protocol = str(config.get("Protocol", "MQTTv311"))	#4 -> MQTT 3.1.1, 5 -> MQTT 5
+				protocol = self.supported_protocols[read_protocol]
+				print(f"SELECTED PROTOCOL: {protocol}")
+
 				print(f"Config: {config}")
 				### IMPORTANTE: Provare a togliere questo match case usando un dictionary e try/catch. dos, publisher, subscriber... sono le chiavi. I valori sono le corrispondenti funzioni da usare
 				match role:
 
 					case "denial of service":
 
-						self.Evil_obj.DoS_attack(config)
+						self.Evil_obj.DoS_attack(config, protocol)
 
 					case "publisher":
 						
 						client_id = f"client_{role}_{i}"
-						client = self.MQTT_Handler.mqtt_register_client(client_id)
+						client = self.MQTT_Handler.mqtt_register_client(client_id, protocol=protocol)
 
 						if event_type == "periodic":
 						
@@ -164,7 +170,7 @@ class Generator:
 					case "subscriber":
 
 						client_id = f"client_{role}_{i}"
-						client = self.MQTT_Handler.mqtt_register_client(client_id)
+						client = self.MQTT_Handler.mqtt_register_client(client_id, protocol=protocol)
 						topic = config.get("Topic")
 						qos = int(config.get("QoS", 0))
 						print(f"AAAA QOS: {qos}")

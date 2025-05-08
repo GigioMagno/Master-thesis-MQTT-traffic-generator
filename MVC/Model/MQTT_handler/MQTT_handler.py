@@ -37,11 +37,11 @@ class MQTT_handler:
 
 
 	#MQTT client creation
-	def mqtt_client(self, client_id=None, timeout=10.0):
+	def mqtt_client(self, client_id=None, timeout=10.0, protocol=mqtt.MQTTv311):
 		
 		try:
 			#client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id, transport="websockets")
-			client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id)
+			client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id, protocol=protocol)
 			client.enable_logger()
 			client.on_message = self.on_message
 			client.connect(self.broker_address, port=self.port, keepalive=60)
@@ -67,9 +67,9 @@ class MQTT_handler:
 
 
 	#MQTT client registration: each client logs itself in thread/client list		
-	def mqtt_register_client(self, client_id=None):
+	def mqtt_register_client(self, client_id=None, protocol=mqtt.MQTTv311):
 		
-		client = self.mqtt_client(client_id)
+		client = self.mqtt_client(client_id=client_id, protocol=protocol)
 		
 		if client is not None:
 		
@@ -128,13 +128,13 @@ class MQTT_handler:
 
 
 	#mqtt connection action
-	def if_mqtt_connection(self, mqtt_layer, active_clients):
+	def if_mqtt_connection(self, mqtt_layer, active_clients, protocol):
 						
 		client_id = mqtt_layer[MQTTConnect].clientId.decode("utf-8", errors="ignore")
 		print(f"client_id: {client_id}")
 		if client_id not in active_clients or not active_clients[client_id].is_connected():
 							
-			client = self.mqtt_register_client(client_id)
+			client = self.mqtt_register_client(client_id, protocol)
 			if client:
 							
 				active_clients[client_id] = client

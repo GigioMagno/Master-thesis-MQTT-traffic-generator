@@ -86,7 +86,6 @@ class Configs_Handler(object):
 					config["HiddenMessage"] = self.View.manual_config.publisher_config.hidden_message_input.text()
 					config["EmbeddingMethod"] = self.View.manual_config.publisher_config.embedding_method_selector.currentText()
 
-				self.Gen.add_device_config(config)
 				self.clear_fields_publisher()
 				print("Publisher configuration added!")
 
@@ -100,7 +99,6 @@ class Configs_Handler(object):
 				config["QoS"] = self.View.manual_config.subscriber_config.qos_selector.currentText()
 				config["Role"] = selected_role
 
-				self.Gen.add_device_config(config)
 				self.clear_fields_subscriber()
 				print("Subscriber configuration added!")
 
@@ -120,14 +118,17 @@ class Configs_Handler(object):
 				config["Role"] = selected_role
 				config["Period"] = self.View.manual_config.dos_config.period_input.value()
 
-				self.Gen.add_device_config(config)
 				self.clear_fields_dos()
 				print("Denial of Service configuration added!")
 				
 			except Exception as e:
 				print(f"Denial of Service: {e}")
 
-
+		config["Protocol"] = self.View.manual_config.protocol_selector.currentText()
+		#protocol = self.View.manual_config.protocol_selector.currentText()
+		#config["Protocol"] = protocol
+		#print(f"IL PROTOCOLLO USATO È: {protocol}")
+		self.Gen.add_device_config(config)	#Tolta da publisher, subscriber, DOS
 
 
 	def empty_config_dict(self):
@@ -147,6 +148,7 @@ class Configs_Handler(object):
 		config["NumClients"] = None
 		config["Duration"] = None
 		config["Role"] = None
+		config["Protocol"] = None
 		return config
 
 

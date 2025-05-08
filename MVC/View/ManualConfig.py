@@ -21,6 +21,12 @@ class ManualConfig(QWidget):
         layout.addWidget(QLabel("Role:"))
         layout.addWidget(self.role_selector)
 
+        #Choose protocol
+        self.protocol_selector = QComboBox()
+        self.protocol_selector.addItems(["MQTTv5", "MQTTv311"])
+        layout.addWidget(QLabel("Protocol:"))
+        layout.addWidget(self.protocol_selector)
+
         #Create a stack of widgets and fill it with proper configs
         self.role_stack = QStackedWidget()
         self.publisher_config = PublisherConfig()

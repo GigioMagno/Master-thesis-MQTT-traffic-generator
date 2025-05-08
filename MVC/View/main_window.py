@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QStackedWidget, QFileDialog
 )
 from PyQt5.QtCore import Qt, QPropertyAnimation, QPoint, QEasingCurve
-from View.manual_config import ManualConfig
+from View.ManualConfig import ManualConfig
 from View.empirical_window import EmpiricalConfig
 
 class MainWindow(QMainWindow):

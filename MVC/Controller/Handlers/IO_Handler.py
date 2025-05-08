@@ -21,7 +21,7 @@ class IO_Handler:
 		#Default configs for empty fields/rows
 		default = {"EmbeddingMethod" : "Case", "QoS" : 0, "Period" : 1.0, "MinRange" : 0.0,
 				   "MaxRange" : 1.0, "NumClients" : 1, "Duration" : 10.0, "Distribution" : "uniform",
-				   "HiddenMessage" : "", "DeviceType" : "legit"}
+				   "HiddenMessage" : "", "DeviceType" : "legit", "Protocol" : "MQTTv311"}
 
 		try:
 			df = pd.read_csv(csv_path, sep=";")
@@ -36,6 +36,7 @@ class IO_Handler:
 			df["MaxRange"] = df["MaxRange"].astype(float)
 			df["NumClients"] = df["NumClients"].astype(int)
 			df["Duration"] = df["Duration"].astype(float)
+			df["Protocol"] = df["Protocol"].astype(str)
 
 			self.Gen.devices_configs = df.to_dict("records")
 
