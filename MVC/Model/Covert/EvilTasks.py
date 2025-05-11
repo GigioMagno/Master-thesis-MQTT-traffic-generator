@@ -32,7 +32,7 @@ class EvilTasks:
 		tokens_topic = current_topic.split("/")
 		last_topic = tokens_topic[-1]
 		method = method.lower()
-		print(f"Current topic: {current_topic}, flag_bit: {flag_bit}, method: {method}")
+		#print(f"Current topic: {current_topic}, flag_bit: {flag_bit}, method: {method}")
 		match method:
 			
 			case "first letter":
@@ -90,8 +90,8 @@ class EvilTasks:
 			
 			for bit in bit_msg:
 				new_topic = self.embed_message(topic, bit, method=method)
-				print(f"Topic sent: {new_topic}")
-				self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
+				print(f"NEW TOPIC: {new_topic}")
+				self.MQTT_object.mqtt_publish_msg(publisher, new_topic, qos, payload)
 				time.sleep(delay)
 
 		except Exception as e:

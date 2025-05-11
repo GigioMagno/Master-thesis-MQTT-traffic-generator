@@ -22,6 +22,8 @@ from datetime import datetime
 from scapy.all import rdpcap
 from scapy.layers.inet import IP, TCP
 from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe, MQTTDisconnect
+from scapy.fields import ByteEnumField
+import traceback
 
 class Generator:
 
@@ -38,7 +40,7 @@ class Generator:
 		self.devices_configs = []				#List of dictionaries for devices configs
 		self.supported_protocols = {"MQTTv311":4, "MQTTv5":5}
 
-	#Fare lettura del protocollo dal pacchetto raw, oppure amen, fa niente e il protocollo rimane fisso per la simulazione
+	#Fare lettura del protocollo dal pacchetto raw, oppure amen, fa niente e il protocollo rimane fisso per la simulazione anche se non mi lascia felicio :(
 
 	#simulation from pcap file
 	def pcap_simulation(self):
@@ -54,16 +56,17 @@ class Generator:
 
 		for packet in packets:
 
-			if MQTT in packet:	#The packet is MQTT 
-				
+			if MQTT in packet:	#The packet is MQTT
+				#Print MQTT PACKET usded for debug
+				print("Entire MQTT raw packet:", " ".join(f"{byte:02x}" for byte in bytes(packet[MQTT])))
 				current_time = packet.time
 				mqtt_layer = packet[MQTT]
 				client = None
 						
 				try:
 					if MQTTConnect in mqtt_layer:
-						print("MQTTConnect trovato")
-						client =  self.MQTT_Handler.if_mqtt_connection(mqtt_layer, active_clients)
+
+						client =  self.MQTT_Handler.if_mqtt_connection(mqtt_layer, active_clients, protocol=packet.protolevel)
 
 					elif MQTTPublish in mqtt_layer:
 
@@ -87,17 +90,19 @@ class Generator:
 
 					last_time = current_time
 
-				except Exception as e:
-					print(f"pcap processing error {e}")
+				except Exception:
+					print(f"pcap processing error {traceback.format_exc()}")
 
 		with self.MQTT_Handler.client_lock:
 			for client_id, client in list(active_clients.items()):
 				
 				if client.is_connected():
+
 					client.disconnect()
 					client.loop_stop()
 
 				if client in self.MQTT_Handler.client_list:
+					
 					self.MQTT_Handler.client_list.remove(client)
 	
 
