@@ -14,33 +14,24 @@ This application generates MQTT traffic simulating normal (publish/subscribe) an
 MVC
 ├── Controller
 │   ├── Handlers
-│   │   │
 │   │   ├── Configs_Handler.py
 │   │   └── IO_Handler.py
-│   │
 │   └── MVC_Controller.py
 │
 ├── Model
-│   │
 │   ├── Covert
-│   │   │
 │   │   └── EvilTasks.py
-│   │
 │   ├── Generator
-│   │   │
 │   │   └── Generator.py
-│   │
 │   └── MQTT_handler
 │       └── MQTT_handler.py
 │
 ├── Utils
-│   │
 │   ├── Distributions.py
 │   ├── MQTT5Parser.py
 │   └── NetSniffer.py
 │
 ├── View
-│   │
 │   ├── DoS_frame.py
 │   ├── empirical_window.py
 │   ├── main_window.py
