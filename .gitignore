@@ -28,3 +28,5 @@ __pycache__/
 # Escludi i file generati dal tuo programma
 MVC/*.csv
 MVC/*.pcap
+.DS_Store
+MVC.zip
