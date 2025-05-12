@@ -8,7 +8,7 @@ import paho.mqtt.client as mqtt
 import threading
 import time
 from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe
-from Utils.MQTT5Parser import MQTT5Parser
+from Utils.MQTTP import MQTTv5Parser, MQTTv3Parser
 
 
 class MQTT_handler:	
@@ -77,7 +77,7 @@ class MQTT_handler:
 				self.client_list.append(client)
 
 			self.client_protocols[client_id] = protocol
-			print(f"[DEBUG] Registrato client_id={client_id} con protocol={protocol}")
+			#print(f"[DEBUG] Registrato client_id={client_id} con protocol={protocol}")
 		return client
 
 
@@ -114,7 +114,7 @@ class MQTT_handler:
 			return False
 
 		try:
-			print("AIUTATEMI VI PREGO")
+
 			info, mid = subscriber.subscribe(topic, qos)
 			if info == mqtt.MQTT_ERR_SUCCESS:
 
@@ -130,26 +130,32 @@ class MQTT_handler:
 	#mqtt connection action
 	def if_mqtt_connection(self, mqtt_layer, active_clients, protocol):
 		
-		raw = bytes(mqtt_layer)
+		#raw = bytes(mqtt_layer)
 
 		try:
-			connect_info = MQTT5Parser.parse_connect_info(raw)
-			protocol_level = connect_info["protocol_level"]
-			client_id = MQTT5Parser.extract_client_id(raw)
+
+			if protocol == 5:
+				
+				client_id, protocol_level, ProtocolName = MQTTv5Parser.ParseConnectPacket(mqtt_layer)
+				#print(f"Decoded CONNECT packet using my parser for MQTTv5 -> ClientID: {client_id}, PROTOCOLNAME: {ProtocolName}, PROTOCOL_LEVEL: {protocol_level}")
+			else:
+
+				client_id, protocol_level, ProtocolName = MQTTv3Parser.ParseConnectPacket(mqtt_layer)
+				#print(f"Decoded CONNECT packet using my parser for MQTTv3 -> ClientID: {client_id}, PROTOCOLNAME: {ProtocolName}, PROTOCOL_LEVEL: {protocol_level}")
 
 		except Exception as e:
-			print(f"[ERROR] Impossibile determinare protocol level o client_id: {e}")
+			print(f"MQTT CONNECTION ERROR, IMPOSSIBLE FIND PROTOCOL LEVEL AND CLIENT ID: {e}")
 			protocol_level = protocol
 			client_id = ""
 
-		print(f"CONNECTED WITH CLIENT_ID: {client_id}")
+		#print(f"CONNECTED WITH CLIENT_ID: {client_id}")
 
 		if client_id not in active_clients or not active_clients.get(client_id, None) or not active_clients[client_id].is_connected():
 
-			client = self.mqtt_register_client(client_id, protocol_level)
+			client = self.mqtt_register_client(client_id, protocol)
 			if client:
 
-				self.client_protocols[client_id] = protocol_level
+				self.client_protocols[client_id] = protocol
 				active_clients[client_id] = client
 				return client
 		else:
@@ -165,36 +171,27 @@ class MQTT_handler:
 
 		if active_clients:
 
-			last_client = list(active_clients.values())[-1]
-			print(f"last_client {last_client}")			
+			last_client = list(active_clients.values())[-1]		
 
 		if last_client:
 
 			client_id = last_client._client_id.decode("utf-8", errors="ignore") if last_client._client_id else ""
 			protolevel = self.client_protocols.get(client_id, 4)
 
-			print(f"[DEBUG] Protocol map: {self.client_protocols}")
-			print(f"[DEBUG] Protocol for '{client_id}': {protolevel}")
-
 			if protolevel == 5:
 
-				print("[INFO] MQTT 5 detected: parsing publish manually")
-				raw_bytes = bytes(mqtt_layer)
-
 				try:
-					topic, qos, payload = MQTT5Parser.parse_publish_payload(raw_bytes)
-					print(f"[PARSED MQTT 5 PUBLISH] topic: {topic}, qos: {qos}, payload: {payload}")
+					qos, topic, PacketID, payload = MQTTv5Parser.ParsePublishPacket(mqtt_layer)
+					#print(f"Decoded PUBLISH using my parser for MQTTv5 -> QoS: {qos}, TOPIC: {topic}, PACKETID: {PacketID}, PAYLOAD: {payload}")
+
 				except Exception as e:
 					print(f"[ERROR] Failed to parse MQTT 5 PUBLISH payload: {e}")
 					return None
 			else:
 
-				mqtt_publish = mqtt_layer[MQTTPublish]
-				topic = mqtt_publish.topic.decode("utf-8", errors="ignore")
-				qos = mqtt_layer.QOS
-				payload = mqtt_publish.value
-				print(f"[WARNING] Using scapy value: {payload}")
-
+				qos, topic, PacketID, payload = MQTTv3Parser.ParsePublishPacket(mqtt_layer)
+				#print(f"Decoded PUBLISH using my parser for MQTTv3 -> QoS: {qos}, TOPIC: {topic}, PACKETID: {PacketID}, PAYLOAD: {payload}")
+			
 			self.mqtt_publish_msg(last_client, topic, qos, payload)
 			print(f"Pubblico su Topic' {topic} con payload {payload}")
 			return last_client
@@ -218,54 +215,25 @@ class MQTT_handler:
 			
 			client_id = subscriber._client_id.decode("utf-8", errors="ignore") if subscriber._client_id else ""
 			protolevel = self.client_protocols.get(client_id, 4)	#default case MQTT3.1.1
-			
-			if protolevel == 5:
 
-				print("[INFO] MQTT5 detected: using custom parser")
-				raw_bytes = bytes(mqtt_layer)
-				try:
-					packet_id, topics = MQTT5Parser.parse_subscribe_payload(raw_bytes)
+			try:
 
-					for topic, qos in topics:
-						print(f"[PARSED MQTT 5] topic: {topic}, qos: {qos}")
-						self.mqtt_topic_subscription(subscriber, topic, qos)
+				if protolevel == 5:
+					
+					packet_id, topics = MQTTv5Parser.ParseSubscribePacket(mqtt_layer)
 
-				except Exception as e:
-					print(f"[ERROR] Failed to parse MQTT 5 payload: {e}")
-
-			else:
-
-				print("[INFO] MQTT 3.x detected: using Scapy parsing")
-
-				mqtt_subscribe = mqtt_layer[MQTTSubscribe]
-
-				if hasattr(mqtt_subscribe, "topics") and isinstance(mqtt_subscribe.topics, list):
-
-					for entry in mqtt_subscribe.topics:
-						if isinstance(entry, (tuple, list)) and len(entry) == 2:
-
-							raw_topic, qos_val = entry
-
-							if isinstance(raw_topic, bytes):
-
-								topic = raw_topic.decode("utf-8", errors="ignore")
-							elif isinstance(raw_topic, str):
-
-								topic = raw_topic
-							else:
-
-								topic = bytes(raw_topic).decode("utf-8", errors="ignore")
-
-							qos = int(qos_val)
-							print(f"Quality of service subscriber: {qos}")
-							self.mqtt_topic_subscription(subscriber, topic, qos)
-						else:
-							
-							print(f"[WARNING] Unexpected subscription entry format: {entry}")
 				else:
+				
+					packet_id, topics = MQTTv3Parser.ParseSubscribePacket(mqtt_layer)
 
-					print("[ERROR] MQTTSubscribe.topics is missing or malformed")
+				for topic, qos in topics:
+					#print(f"Decoded SUBSCRIBE packet using my parser for MQTT -> PACKET ID: {packet_id}, TOPIC: {topic}, QoS: {qos}")
+					self.mqtt_topic_subscription(subscriber, topic, qos)
+			
+			except Exception as e:
 
+				print(f"MQTT SUBSCRIPTION ERROR, CHECK PARSER AND PACKETS: {e}")
+				raise e
 
 			return subscriber
 

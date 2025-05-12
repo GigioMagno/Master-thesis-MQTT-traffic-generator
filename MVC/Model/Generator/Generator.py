@@ -57,8 +57,7 @@ class Generator:
 		for packet in packets:
 
 			if MQTT in packet:	#The packet is MQTT
-				#Print MQTT PACKET usded for debug
-				print("Entire MQTT raw packet:", " ".join(f"{byte:02x}" for byte in bytes(packet[MQTT])))
+				
 				current_time = packet.time
 				mqtt_layer = packet[MQTT]
 				client = None
@@ -102,7 +101,7 @@ class Generator:
 					client.loop_stop()
 
 				if client in self.MQTT_Handler.client_list:
-					
+
 					self.MQTT_Handler.client_list.remove(client)
 	
 
