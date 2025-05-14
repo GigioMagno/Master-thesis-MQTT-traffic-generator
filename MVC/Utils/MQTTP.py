@@ -1,3 +1,11 @@
+##################################### CLASS #############################################
+##################################### MQTTP #############################################
+# CURRENT # 
+# This script contains three classes. One of them (MQTTParser) is an abstract class and 
+# is used as root for the other two. The other two classes (MQTTv5Parser & MQTTv3Parser)
+# are derived from MQTTParser and implements specific parsing methods according to the
+# protocol specifications.
+
 from abc import ABC, abstractmethod
 #This is an MQTTv5 and MQTTv3* packet parser
 
@@ -48,17 +56,17 @@ class MQTTParser(ABC):
 	
 	@staticmethod
 	@abstractmethod
-	def ParseConnectPacket():
+	def ParseConnectPacket(MQTT_layer):
 		pass
 	
 	@staticmethod
 	@abstractmethod
-	def ParsePublishPacket():
+	def ParsePublishPacket(MQTT_layer):
 		pass
 	
 	@staticmethod
 	@abstractmethod
-	def ParseSubscribePacket():
+	def ParseSubscribePacket(MQTT_layer):
 		pass
 
 
