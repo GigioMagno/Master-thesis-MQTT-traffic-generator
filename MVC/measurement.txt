@@ -1,0 +1,83 @@
+MQTTP
+MQTTP performance evaluation:
+ Duration: 1.614274024963379
+ Peak: 235.03125
+ Memory: [3135.3125, 2900.28125, 2901.5, 2906.96875, 2917.109375, 2923.796875, 2917.1875, 2911.515625, 2914.5625]
+MQTTP
+Scapy performance evaluation:
+ Duration: 1.0157058238983154
+ Peak: 20.296875
+ Memory: [2914.90625, 2894.609375, 2894.609375, 2894.609375, 2894.609375, 2894.609375, 2894.65625]
+
+Svitol>python Profiling/LibaryTesting/testLib.py
+MQTTP
+MQTTP performance evaluation:
+ Duration: 2.6810309886932373
+ Peak: 382.75
+ Memory: [3062.109375, 2765.90625, 2775.640625, 2779.78125, 2779.5, 2782.125, 2786.546875, 2782.015625, 2790.96875, 2776.09375, 2789.609375, 2784.953125, 2774.03125, 2761.984375, 2744.859375, 2708.53125, 2693.640625, 2698.203125, 2679.359375, 2682.8125]
+Scapy
+Scapy performance evaluation:
+ Duration: 1.4105498790740967
+ Peak: 0.34375
+ Memory: [2683.109375, 2683.25, 2683.25, 2683.25, 2683.25, 2683.25, 2683.25, 2683.25, 2683.453125]
+
+
+
+
+
+
+
+
+Con script testLib.py using memory_profiler and memory_usage
+ Caricamento pacchetti MQTT v3 da MVC/GeneratedTraffic/250MB.pcap...
+Trovati 1272 pacchetti MQTT v3
+Parsing con Scapy
+Parsing con la MQTTP
+
+ RISULTATI CONFRONTO:
+Scapy: 2.538 sec | 169.344 MiB
+MQTTP: 2.453 sec | 101.125 MiB
+
+
+
+con mmap
+Trovati 1272 pacchetti MQTT v3
+Parsing con Scapy
+Parsing con la MQTTP
+
+250 MB file
+
+ RISULTATI CONFRONTO:
+Scapy: 2.781 sec | 210.188 MiB
+MQTTP: 2.354 sec | 0.109 MiB
+
+
+ RISULTATI CONFRONTO:
+Scapy: 2.631 sec | 19.203 MiB
+MQTTP: 2.049 sec | 58.812 MiB
+
+
+500 MB file
+
+ RISULTATI CONFRONTO:
+Scapy: 2.745 sec | 23.344 MiB
+MQTTP: 2.089 sec | 0.125 MiB
+
+750 MB file
+
+ RISULTATI CONFRONTO:
+Scapy: 2.243 sec | 217.578 MiB
+MQTTP: 1.292 sec | 62.891 MiB
+
+1GB file
+ RISULTATI CONFRONTO:
+Scapy: 2.497 sec | 363.938 MiB
+MQTTP: 1.288 sec | 37.719 MiB
+zsh: terminated  python no_mem_benchamrk.py GeneratedTraffic/1GB.pcap
+
+
+ RISULTATI CONFRONTO:
+MQTTP: 2.505 sec | 243.062 MiB
+Scapy: 2.101 sec | 25.672 MiB
+
+

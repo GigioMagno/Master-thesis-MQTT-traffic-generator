@@ -1,0 +1,2 @@
+Ottengo questo: The publisher does not exists or it is not connected
+fare in modo che se il broker rifiuta la connessione, il client neanche prova a mandare il resto
