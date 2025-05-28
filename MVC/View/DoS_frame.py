@@ -4,7 +4,7 @@
 # This class is designed to manage a frame for the Denial of Service attack.
 
 from PyQt5.QtWidgets import (
-	QWidget, QFormLayout, QLineEdit, QComboBox, QDoubleSpinBox, QSpinBox
+	QWidget, QFormLayout, QLineEdit, QComboBox, QDoubleSpinBox, QSpinBox, QTextEdit
 	)
 
 
@@ -25,7 +25,8 @@ class DosAttackConfig(QWidget):
         layout.addRow("Quality of Service:", self.qos_selector)
 
         #Payload textarea
-        self.payload_input = QLineEdit()
+        self.payload_input = QLineEdit()   #Da sbloccare per versione originale
+        #self.payload_input = QTextEdit()
         layout.addRow("Payload:", self.payload_input)
 
         #Timing selector
@@ -47,6 +48,12 @@ class DosAttackConfig(QWidget):
         self.duration_input = QDoubleSpinBox()
         self.duration_input.setSuffix(" s")
         layout.addRow("Duration:", self.duration_input)
+
+        #Retain selector
+        self.retain_selector = QComboBox()
+        self.retain_selector.addItem("True", True)
+        self.retain_selector.addItem("False", False)
+        layout.addRow("Retain:", self.retain_selector)
 
         self.setLayout(layout)
 

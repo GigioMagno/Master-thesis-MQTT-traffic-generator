@@ -72,7 +72,8 @@ if __name__ == "__main__":
         }
     """)
     window = MainWindow()
-    gen = Generator(broker_address="broker.hivemq.com", port=1883)
+    #gen = Generator(broker_address="broker.hivemq.com", port=1883)
+    gen = Generator(broker_address="127.0.0.1", port=1883)
     #gen = Generator(broker_address="public.mqtthq.com")
     #gen = Generator(port=80)
     #gen = Generator(broker_address="test.mosquitto.org", port=1883, interface="utun8") #SE VPN ON

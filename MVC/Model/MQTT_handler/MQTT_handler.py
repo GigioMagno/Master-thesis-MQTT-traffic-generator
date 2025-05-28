@@ -9,7 +9,7 @@ import threading
 import time
 from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe
 from Utils.MQTTP import MQTTv5Parser, MQTTv3Parser
-
+from Utils.MalformedPacketException import MalformedPacketException
 
 class MQTT_handler:	
 
@@ -34,7 +34,7 @@ class MQTT_handler:
 
 			client_id = "anonymous"
 
-		print(f"Received message '{message.payload.decode()}' from topic '{message.topic}' (Client: '{client_id}')")
+		#print(f"Received message '{message.payload.decode()}' from topic '{message.topic}' (Client: '{client_id}')")
 
 
 
@@ -82,24 +82,19 @@ class MQTT_handler:
 
 
 
-	#MQTT message publish method: return true iff the message has been sent correctly
-	def mqtt_publish_msg(self, publisher, topic, qos, payload):
-		
-		if publisher is None or not publisher.is_connected():
-
-			print("The publisher does not exists or it is not connected")
-			return False
+	#MQTT message publish method: return true iff the message has been sent correctly. Retain can be either true or false
+	def mqtt_publish_msg(self, publisher, topic, qos, payload, retain):
 
 		try:
 			
-			info = publisher.publish(topic, payload, qos)
+			info = publisher.publish(topic, payload, qos, retain=retain)
 			if info.rc == mqtt.MQTT_ERR_SUCCESS:
 
-				print("Message sent")
+				#print("Message sent")
 				return True
 
 		except Exception as e:
-			print(f"Error while sending message to {topic}: {e}")
+			#print(f"Error while sending message to {topic}: {e}")
 			return False
 		return False
 
@@ -110,7 +105,7 @@ class MQTT_handler:
 		
 		if subscriber is None or not subscriber.is_connected():
 
-			print("The subscriber does not exists or it is not connected")
+			#print("The subscriber does not exists or it is not connected")
 			return False
 
 		try:
@@ -128,6 +123,7 @@ class MQTT_handler:
 
 
 	#mqtt connection action
+	#@profile
 	def if_mqtt_connection(self, mqtt_layer, active_clients, protocol):
 		
 		#raw = bytes(mqtt_layer)
@@ -143,10 +139,15 @@ class MQTT_handler:
 				client_id, protocol_level, ProtocolName = MQTTv3Parser.ParseConnectPacket(mqtt_layer)
 				#print(f"Decoded CONNECT packet using my parser for MQTTv3 -> ClientID: {client_id}, PROTOCOLNAME: {ProtocolName}, PROTOCOL_LEVEL: {protocol_level}")
 
+		except MalformedPacketException as e:
+
+			raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
+
 		except Exception as e:
-			print(f"MQTT CONNECTION ERROR, IMPOSSIBLE FIND PROTOCOL LEVEL AND CLIENT ID: {e}")
-			protocol_level = protocol
-			client_id = ""
+			
+			raise Exception(f"Unexpected error parsing MQTT Connection packet for client {client_id}") from e
+			#protocol_level = protocol
+			#client_id = ""
 
 		#print(f"CONNECTED WITH CLIENT_ID: {client_id}")
 
@@ -165,7 +166,7 @@ class MQTT_handler:
 
 
 	#mqtt publishing action
-	def if_mqtt_publish(self, mqtt_layer, active_clients):
+	def if_mqtt_publish(self, mqtt_layer, active_clients, retain):
 		
 		last_client = None
 
@@ -178,23 +179,34 @@ class MQTT_handler:
 			client_id = last_client._client_id.decode("utf-8", errors="ignore") if last_client._client_id else ""
 			protolevel = self.client_protocols.get(client_id, 4)
 
-			if protolevel == 5:
+			try:
+				if protolevel == 5:
 
-				try:
 					qos, topic, PacketID, payload = MQTTv5Parser.ParsePublishPacket(mqtt_layer)
 					#print(f"Decoded PUBLISH using my parser for MQTTv5 -> QoS: {qos}, TOPIC: {topic}, PACKETID: {PacketID}, PAYLOAD: {payload}")
 
-				except Exception as e:
-					print(f"[ERROR] Failed to parse MQTT 5 PUBLISH payload: {e}")
-					return None
-			else:
+				else:
+					
+					qos, topic, PacketID, payload = MQTTv3Parser.ParsePublishPacket(mqtt_layer)
+					#print(f"Decoded PUBLISH using my parser for MQTTv3 -> QoS: {qos}, TOPIC: {topic}, PACKETID: {PacketID}, PAYLOAD: {payload}")
+				
 
-				qos, topic, PacketID, payload = MQTTv3Parser.ParsePublishPacket(mqtt_layer)
-				#print(f"Decoded PUBLISH using my parser for MQTTv3 -> QoS: {qos}, TOPIC: {topic}, PACKETID: {PacketID}, PAYLOAD: {payload}")
-			
-			self.mqtt_publish_msg(last_client, topic, qos, payload)
-			print(f"Pubblico su Topic' {topic} con payload {payload}")
-			return last_client
+				if last_client is not None and last_client.is_connected():
+					
+					self.mqtt_publish_msg(last_client, topic, qos, payload, retain)
+					#print(f"Pubblico su Topic' {topic} con payload {payload}")
+
+				return last_client
+
+			except MalformedPacketException as e:
+
+				raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
+				return None
+
+			except Exception as e:
+
+				raise Exception(f"Unexpected error parsing MQTT Publish packet for client {client_id}") from e
+				return None
 
 		return None
 
@@ -230,10 +242,16 @@ class MQTT_handler:
 					#print(f"Decoded SUBSCRIBE packet using my parser for MQTT -> PACKET ID: {packet_id}, TOPIC: {topic}, QoS: {qos}")
 					self.mqtt_topic_subscription(subscriber, topic, qos)
 			
+			except MalformedPacketException as e:
+
+				raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
+				return None
+			
 			except Exception as e:
 
-				print(f"MQTT SUBSCRIPTION ERROR, CHECK PARSER AND PACKETS: {e}")
-				raise e
+				#print(f"MQTT SUBSCRIPTION ERROR, CHECK PARSER AND PACKETS: {e}")
+				raise Exception(f"Unexpected error parsing MQTT subscription packet for client {client_id}") from e
+				return None
 
 			return subscriber
 

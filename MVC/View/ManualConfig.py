@@ -94,6 +94,11 @@ class PublisherConfig(QWidget):
         self.embedding_method_selector.addItems(["First letter", "ID"])   #Choose proper methods
         layout.addRow("Embedding Method:", self.embedding_method_selector)
 
+        self.retain_selector = QComboBox()
+        self.retain_selector.addItem("True", True)
+        self.retain_selector.addItem("False", False)
+        layout.addRow("Retain:", self.retain_selector)
+
         self.setLayout(layout)
 
         self.device_timing_selector.currentTextChanged.connect(self.update_timing_fields)
@@ -101,8 +106,6 @@ class PublisherConfig(QWidget):
 
         self.update_timing_fields(self.device_timing_selector.currentText())
         self.update_device_type_fields(self.device_type_selector.currentText())
-
-
 
 
     def update_timing_fields(self, timing):

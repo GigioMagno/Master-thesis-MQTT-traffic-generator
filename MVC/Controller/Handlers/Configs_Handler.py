@@ -68,6 +68,7 @@ class Configs_Handler(object):
 				config["QoS"] = int(self.View.manual_config.publisher_config.qos_selector.currentText())
 				config["Payload"] = self.View.manual_config.publisher_config.payload_input.text()
 				config["Role"] = selected_role
+				config["Retain"] = self.View.manual_config.publisher_config.retain_selector.currentData()
 
 				if device_timing == "Event":
 				
@@ -111,12 +112,14 @@ class Configs_Handler(object):
 				config["Topic"] = self.View.manual_config.dos_config.topic_input.text()
 				config["QoS"] = self.View.manual_config.dos_config.qos_selector.currentText()
 				config["Payload"] = self.View.manual_config.dos_config.payload_input.text()
+				#config["Payload"] = self.View.manual_config.dos_config.payload_input.toPlainText()
 				device_timing = self.View.manual_config.dos_config.device_timing_selector.currentText()
 				config["Type"] = device_timing
 				config["NumClients"] = self.View.manual_config.dos_config.num_clients_input.value()
 				config["Duration"] = self.View.manual_config.dos_config.duration_input.value()
 				config["Role"] = selected_role
 				config["Period"] = self.View.manual_config.dos_config.period_input.value()
+				config["Retain"] = self.View.manual_config.dos_config.retain_selector.currentData()
 
 				self.clear_fields_dos()
 				print("Denial of Service configuration added!")

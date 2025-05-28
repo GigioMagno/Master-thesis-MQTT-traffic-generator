@@ -16,6 +16,7 @@ import argparse, base64
 import os, signal, subprocess
 import threading
 from Utils.NetSniffer import NetSniffer
+from Utils.MalformedPacketException import MalformedPacketException
 from Model.MQTT_handler.MQTT_handler import MQTT_handler
 from Model.Covert.EvilTasks import EvilTasks
 from datetime import datetime
@@ -27,13 +28,13 @@ import traceback
 
 class Generator:
 
-	def __init__(self, broker_address="test.mosquitto.org", port=1883, interface="en0"):
+	def __init__(self, broker_address="test.mosquitto.org", port=1883, interface="en0", csv_path=None, pcap_path=None):
 		
 		self.broker_address = broker_address
 		self.port = port
 		self.interface = interface
-		self.csv_path = None
-		self.pcap_path = None
+		self.csv_path = csv_path
+		self.pcap_path = pcap_path
 		self.MQTT_Handler = MQTT_handler(self.broker_address, self.port)
 		self.Evil_obj = EvilTasks(self.MQTT_Handler)
 		self.Sniffer = NetSniffer(self.port, self.interface)
@@ -68,11 +69,11 @@ class Generator:
 						client =  self.MQTT_Handler.if_mqtt_connection(mqtt_layer, active_clients, protocol=packet.protolevel)
 
 					elif MQTTPublish in mqtt_layer:
-
-						client = self.MQTT_Handler.if_mqtt_publish(mqtt_layer, active_clients)
+						#Retain in general is set to false
+						client = self.MQTT_Handler.if_mqtt_publish(mqtt_layer, active_clients, False)
 
 					elif MQTTSubscribe in mqtt_layer:
-
+						#Se la connessione non è andata a buon fine allora exception
 						client = self.MQTT_Handler.if_mqtt_subscription(mqtt_layer, active_clients)
 
 					elif MQTTDisconnect in mqtt_layer:
@@ -89,8 +90,15 @@ class Generator:
 
 					last_time = current_time
 
-				except Exception:
-					print(f"pcap processing error {traceback.format_exc()}")
+				except MalformedPacketException as e:
+
+					continue
+
+				except Exception as e:
+					#print(f"pcap processing error {traceback.format_exc()}")
+					continue
+					
+		print(f"Total active clients: {len(active_clients)}")
 
 		with self.MQTT_Handler.client_lock:
 			for client_id, client in list(active_clients.items()):
@@ -131,6 +139,7 @@ class Generator:
 	def run_generator(self):
 
 		#Necessary check in order to establish if the generator has the proper data to run
+		#print(f"Controllo variabili: {self.csv_path, self.devices_configs}")
 		if self.csv_path or self.devices_configs:
 			
 			for i, config in enumerate(self.devices_configs):
@@ -139,19 +148,22 @@ class Generator:
 				event_type = str(config.get("Type", "")).strip().lower()
 				read_protocol = str(config.get("Protocol", "MQTTv311"))	#4 -> MQTT 3.1.1, 5 -> MQTT 5
 				protocol = self.supported_protocols[read_protocol]
+				retain = bool(config.get("Retain", False))
 				print(f"SELECTED PROTOCOL: {protocol}")
 
-				print(f"Config: {config}")
+				#print(f"Config: {config}")
 				### IMPORTANTE: Provare a togliere questo match case usando un dictionary e try/catch. dos, publisher, subscriber... sono le chiavi. I valori sono le corrispondenti funzioni da usare
 				match role:
 
 					case "denial of service":
 
-						self.Evil_obj.DoS_attack(config, protocol)
+						self.Evil_obj.DoS_attack(config, protocol, retain)
+						print("Dos finito???")
 
 					case "publisher":
 						
 						client_id = f"client_{role}_{i}"
+						print(f"client_id: {client_id}")
 						client = self.MQTT_Handler.mqtt_register_client(client_id, protocol=protocol)
 
 						if event_type == "periodic":
@@ -177,7 +189,7 @@ class Generator:
 						client = self.MQTT_Handler.mqtt_register_client(client_id, protocol=protocol)
 						topic = config.get("Topic")
 						qos = int(config.get("QoS", 0))
-						print(f"AAAA QOS: {qos}")
+						#print(f"AAAA QOS: {qos}")
 
 						if topic:
 
