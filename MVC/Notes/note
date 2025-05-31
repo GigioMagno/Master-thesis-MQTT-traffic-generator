@@ -1,7 +1,0 @@
-L'import soltanto di pandas occupa circa 20 mb, e io uso solo poche funzionalità. essendo che pandas è monolitica e poco ingegnerizzata dal punto di vista della modularità, non posso importare moduli. In poche parole o tutto o niente. Questo introduce un overhead di circa 20MB, non trascurabile.
-
-spostato scapy per la lettura del pcap solo nelle funzioni che necessitano
-
-
-
-in generator.py sono stati tolti degli import e messi solo quando necessari, a seconda dei moduli del programma che sono attivi.

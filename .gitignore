@@ -33,3 +33,11 @@ MVC/*.csv
 MVC/*.pcap
 .DS_Store
 MVC.zip
+
+Profiling
+ProfilingOutcomes
+Notes
+CSVConfigs
+
+da_fare.txt
+MQTTPmeasurements.txt
