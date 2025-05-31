@@ -9,9 +9,6 @@
 # and lower level features, but low level features are directly managed by IO_Handler
 
 from Controller.Handlers.IO_Handler import IO_Handler
-from PyQt5.QtWidgets import QFileDialog
-from datetime import datetime
-import os
 
 
 
@@ -29,6 +26,8 @@ class Configs_Handler(object):
 
 	def read_from_csv_action(self):
 
+		from PyQt5.QtWidgets import QFileDialog
+
 		csv_path, _ = QFileDialog.getOpenFileName(self.View, "Open csv File", "", "csv Files (*.csv);; All Files (*)")
 		if csv_path:
 
@@ -43,6 +42,10 @@ class Configs_Handler(object):
 
 
 	def save_to_csv_actions(self):
+
+		from PyQt5.QtWidgets import QFileDialog
+		from datetime import datetime
+		import os
 
 		directory = QFileDialog.getExistingDirectory()
 		if directory:

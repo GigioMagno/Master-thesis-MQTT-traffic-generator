@@ -1,0 +1,23 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Installa pacchetti
+RUN apt-get update && \
+    apt-get install -y mosquitto mosquitto-clients python3 python3-pip iproute2 iputils-ping net-tools && \
+    pip3 install pandas scapy && \
+    apt-get clean
+
+# Crea directory di configurazione Mosquitto
+RUN mkdir -p /etc/mosquitto/
+
+# Configurazione base per accettare connessioni da tutti
+RUN echo "listener 1883" > /etc/mosquitto/mosquitto.conf && \
+    echo "allow_anonymous true" >> /etc/mosquitto/mosquitto.conf
+
+# Avvia Mosquitto solo nel container broker
+CMD if [ "$HOSTNAME" = "broker" ]; then \
+        mosquitto -c /etc/mosquitto/mosquitto.conf; \
+    else \
+        /bin/bash; \
+    fi

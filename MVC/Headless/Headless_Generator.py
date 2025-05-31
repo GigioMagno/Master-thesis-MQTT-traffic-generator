@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+
 # Inserisci la root di MVC nel path
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if root_path not in sys.path:
@@ -27,6 +28,7 @@ def main():
 
 	Gen = None
 
+
 	if args.csv:
 		print(f"[CSV MODE]: Selected file {args.csv}")
 		Gen = Generator(broker_address=args.broker, port=args.port, interface=args.interface, csv_path=args.csv)
@@ -41,6 +43,7 @@ def main():
 		Gen.pcap_simulation()
 
 
+	
 if __name__ == '__main__':
 	main()
 	exit(21)

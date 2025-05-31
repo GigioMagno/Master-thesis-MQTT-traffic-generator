@@ -5,7 +5,6 @@
 # the second stops the capture. The capture is started as a new sub process.
 
 import subprocess, os, signal
-import time
 from datetime import datetime
 
 

@@ -7,7 +7,7 @@
 import paho.mqtt.client as mqtt
 import threading
 import time
-from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe
+#from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe
 from Utils.MQTTP import MQTTv5Parser, MQTTv3Parser
 from Utils.MalformedPacketException import MalformedPacketException
 
@@ -90,6 +90,7 @@ class MQTT_handler:
 			info = publisher.publish(topic, payload, qos, retain=retain)
 			if info.rc == mqtt.MQTT_ERR_SUCCESS:
 
+				del info
 				#print("Message sent")
 				return True
 
@@ -141,11 +142,13 @@ class MQTT_handler:
 
 		except MalformedPacketException as e:
 
-			raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
+			return None
+			#raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
 
 		except Exception as e:
 			
-			raise Exception(f"Unexpected error parsing MQTT Connection packet for client {client_id}") from e
+			return None
+			#raise Exception(f"Unexpected error parsing MQTT Connection packet for client {client_id}") from e
 			#protocol_level = protocol
 			#client_id = ""
 
@@ -200,12 +203,12 @@ class MQTT_handler:
 
 			except MalformedPacketException as e:
 
-				raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
+				#raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
 				return None
 
 			except Exception as e:
 
-				raise Exception(f"Unexpected error parsing MQTT Publish packet for client {client_id}") from e
+				#raise Exception(f"Unexpected error parsing MQTT Publish packet for client {client_id}") from e
 				return None
 
 		return None
@@ -244,13 +247,13 @@ class MQTT_handler:
 			
 			except MalformedPacketException as e:
 
-				raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
+				#raise MalformedPacketException(f"MalformedPacketException for client {client_id}") from e
 				return None
 			
 			except Exception as e:
 
 				#print(f"MQTT SUBSCRIPTION ERROR, CHECK PARSER AND PACKETS: {e}")
-				raise Exception(f"Unexpected error parsing MQTT subscription packet for client {client_id}") from e
+				#raise Exception(f"Unexpected error parsing MQTT subscription packet for client {client_id}") from e
 				return None
 
 			return subscriber

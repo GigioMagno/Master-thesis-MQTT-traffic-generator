@@ -6,7 +6,7 @@
 
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QPushButton,
-    QVBoxLayout, QHBoxLayout, QStackedWidget, QFileDialog
+    QVBoxLayout, QHBoxLayout, QStackedWidget
 )
 from PyQt5.QtCore import Qt, QPropertyAnimation, QPoint, QEasingCurve
 from View.ManualConfig import ManualConfig

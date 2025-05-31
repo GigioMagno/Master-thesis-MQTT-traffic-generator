@@ -9,22 +9,12 @@
 # a particular configuration. The stop_generator is necessary to stop the currently
 # working threads and close the open connections.
 
-import pandas as pd
-import numpy as np
-import random, time
-import argparse, base64
-import os, signal, subprocess
+import time
 import threading
 from Utils.NetSniffer import NetSniffer
 from Utils.MalformedPacketException import MalformedPacketException
 from Model.MQTT_handler.MQTT_handler import MQTT_handler
 from Model.Covert.EvilTasks import EvilTasks
-from datetime import datetime
-from scapy.all import rdpcap
-from scapy.layers.inet import IP, TCP
-from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe, MQTTDisconnect
-from scapy.fields import ByteEnumField
-import traceback
 
 class Generator:
 
@@ -45,6 +35,8 @@ class Generator:
 
 	#simulation from pcap file
 	def pcap_simulation(self):
+
+		from scapy.all import rdpcap
 		
 		try:
 			packets = rdpcap(self.pcap_path)
@@ -52,6 +44,8 @@ class Generator:
 			print(f"Error while pcap opening {e}")
 			return None
 
+		from scapy.contrib.mqtt import MQTT, MQTTConnect, MQTTPublish, MQTTSubscribe, MQTTDisconnect
+		
 		last_time = None
 		active_clients = {}
 
@@ -135,11 +129,11 @@ class Generator:
 
 
 
-
 	def run_generator(self):
 
 		#Necessary check in order to establish if the generator has the proper data to run
 		#print(f"Controllo variabili: {self.csv_path, self.devices_configs}")
+	
 		if self.csv_path or self.devices_configs:
 			
 			for i, config in enumerate(self.devices_configs):
@@ -158,7 +152,6 @@ class Generator:
 					case "denial of service":
 
 						self.Evil_obj.DoS_attack(config, protocol, retain)
-						print("Dos finito???")
 
 					case "publisher":
 						
@@ -176,7 +169,8 @@ class Generator:
 						if target_func:
 
 							thread = threading.Thread(target=target_func, args=(client, config))
-							thread.daemon = True
+							#thread.daemon = True
+							thread.daemon = False
 							self.MQTT_Handler.working_threads.append(thread)
 							thread.start()
 						else:
@@ -201,13 +195,12 @@ class Generator:
 					case _:
 
 						continue
-			
 			return True
 
 		elif self.pcap_path:
 
 			thread = threading.Thread(target=self.pcap_simulation)
-			thread.daemon = True
+			thread.daemon = False
 			self.MQTT_Handler.working_threads.append(thread)
 			thread.start()
 			return True

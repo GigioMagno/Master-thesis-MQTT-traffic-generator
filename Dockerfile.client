@@ -1,0 +1,15 @@
+FROM eclipse-mosquitto:2.0.21
+
+RUN apk update && apk add --no-cache python3 py3-pip bash
+
+RUN python3 -m venv /opt/venv
+
+RUN /opt/venv/bin/pip install --upgrade pip &&/opt/venv/bin/pip install paho-mqtt pandas scapy
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY MVC /home/MVC
+
+RUN chmod +x /home/MVC/Headless/parallel_launcher.sh
+
+CMD ["/usr/sbin/mosquitto", "-c", "/mosquitto/config/mosquitto.conf"]

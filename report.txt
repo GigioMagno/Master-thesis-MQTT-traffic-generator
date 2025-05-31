@@ -1,0 +1,20 @@
+Se simulo due processi A e B.
+A "dossa" B, allora se li simulo localmente, il SO ottimizza i trasferimenti non inviando i dati effettivamente tramite una connessione tra i due processi e quindi la situazione non è reale.
+Il traffico generato da un processo è enorme e questo satura la ram.
+Inoltre, è come se misurassi la caacità teorica del sistema di passare dati tra processi/container sullo stesso host.
+
+
+#Misurazione teorica del traffico generato dal generatore. Può andar bene???
+La velocità media di trasmissione di dati, in locale è di 76.5 Gbits/sec su un orizzonte di 10 secondi usando iperf3. I dati vengono trasmessi usando TCP. Con pacchetti da 10 MB
+
+
+#Fare prove da Francesca
+
+
+Ho provato ad inserire la generazione casuale del topic con una stringa random da 30 caratteri. Non ho ottenuto niente di particolarmente significativo.
+
+
+Mosquitto mitiga automaticamente connessioni sospette e riconosce se i topic sono sparati a caso. Se su un topic arrivano troppi messaggi, allora molti messaggi del sender vengono scartati. :(
+
+
+Se simulo 2 sender su Docker ed un broker, e i sender provano a dossare il broker, non ce la fanno, però non ho OOM. Se da locale dosso un container su docker lo metto a dura prova, ma non crasha il broker ma io attaccante. (messaggi da 10 fino a 50 MB). Con messaggi piccoli, tipo payload "plausibili" di poichi bytes, non ho problemi.

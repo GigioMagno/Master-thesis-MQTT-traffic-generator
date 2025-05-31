@@ -1,0 +1,6 @@
+To test the memory usage
+
+scalene --profile-allocations-only view_test.py
+
+To test CPU GPU RAM
+scalene view_test.py

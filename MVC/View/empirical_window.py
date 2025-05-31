@@ -3,7 +3,7 @@
 # CURRENT # 
 # This class is designed to manage a frame for the Empirical mode.
 
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog)
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel)
 
 # Panel for Empirical mode
 class EmpiricalConfig(QWidget):

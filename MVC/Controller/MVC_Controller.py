@@ -5,7 +5,6 @@
 # It is simple and it delegates responsibilities to other handlers.
 
 from Controller.Handlers.Configs_Handler import Configs_Handler
-from View.main_window import MainWindow
 import time
 
 class MVC_Controller(object):
@@ -28,6 +27,7 @@ class MVC_Controller(object):
 			time.sleep(3)
 			print("Devices = ", len(self.Gen.devices_configs))
 			self.Gen.run_generator()
+
 
 		elif self.Gen.pcap_path is not None:
 

@@ -5,10 +5,7 @@
 # graphic components, and then it runs the generator.
 
 from View.main_window import MainWindow
-from PyQt5.QtCore import Qt, QPropertyAnimation, QPoint, QEasingCurve
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton, QLabel,
-    QVBoxLayout, QHBoxLayout, QComboBox, QLineEdit, QFileDialog,
-    QStackedWidget, QFormLayout, QSpinBox, QDoubleSpinBox, QTextEdit)
+from PyQt5.QtWidgets import QApplication
 from Model.Generator.Generator import Generator
 from Controller.MVC_Controller import MVC_Controller
 import sys
@@ -73,7 +70,14 @@ if __name__ == "__main__":
     """)
     window = MainWindow()
     #gen = Generator(broker_address="broker.hivemq.com", port=1883)
-    gen = Generator(broker_address="127.0.0.1", port=1883)
+    
+    
+    
+    gen = Generator(broker_address="127.0.0.1", port=1883, interface="lo0")
+
+
+
+
     #gen = Generator(broker_address="public.mqtthq.com")
     #gen = Generator(port=80)
     #gen = Generator(broker_address="test.mosquitto.org", port=1883, interface="utun8") #SE VPN ON
@@ -81,5 +85,9 @@ if __name__ == "__main__":
     #gen = Generator(broker_address="127.0.0.1", port=1883, interface="lo0")
     controller = MVC_Controller(gen, window)
 
+    
+
+
     window.show()
     sys.exit(app.exec_())
+
