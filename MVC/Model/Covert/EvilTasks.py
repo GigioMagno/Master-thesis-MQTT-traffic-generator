@@ -14,7 +14,6 @@
 import time
 import threading, random, string
 from Utils.Distributions import Distributions
-import multiprocessing
 
 class EvilTasks:
 	
