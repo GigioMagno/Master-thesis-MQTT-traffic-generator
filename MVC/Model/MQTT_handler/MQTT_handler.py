@@ -25,14 +25,22 @@ class MQTT_handler:
 
 	
 	#Action to perform whenever a subscriber receives a message. This method is required by client object
-	def on_message(self, client, userdata, message):
+	# def on_message(self, client, userdata, message):
 		
-		if client._client_id:
+	# 	if client._client_id:
 
-			client_id = client._client_id.decode()
-		else:
+	# 		client_id = client._client_id.decode()
+	# 	else:
 
-			client_id = "anonymous"
+	# 		client_id = "anonymous"
+
+
+	def on_message(self, client, userdata, message):
+		#Da rimuovere se creano problemi
+		del message
+		del userdata
+		pass
+
 
 		#print(f"Received message '{message.payload.decode()}' from topic '{message.topic}' (Client: '{client_id}')")
 
@@ -42,6 +50,8 @@ class MQTT_handler:
 	def mqtt_client(self, client_id=None, timeout=10.0, protocol=mqtt.MQTTv311):
 		
 		try:
+			#Per fare clean_session su mqtt 3.1.1
+			#client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id, protocol=protocol, clean_session=False)
 			client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id, protocol=protocol)
 			client.enable_logger()
 			client.on_message = self.on_message
@@ -262,7 +272,7 @@ class MQTT_handler:
 
 
 
-	#mqtt disconnection action
+	#mqtt disconnection action -> rimuovere mqtt_layer. Non serve
 	def if_mqtt_disconnection(self, mqtt_layer, active_clients):
 		
 		if active_clients:

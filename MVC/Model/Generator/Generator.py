@@ -149,9 +149,9 @@ class Generator:
 				### IMPORTANTE: Provare a togliere questo match case usando un dictionary e try/catch. dos, publisher, subscriber... sono le chiavi. I valori sono le corrispondenti funzioni da usare
 				match role:
 
-					case "denial of service":
+					case "denial of service" | "denial of service 2":
 
-						self.Evil_obj.DoS_attack(config, protocol, retain)
+						self.Evil_obj.DoS_attack(config, protocol, retain, role)
 
 					case "publisher":
 						
@@ -188,6 +188,15 @@ class Generator:
 						if topic:
 
 							self.MQTT_Handler.mqtt_topic_subscription(client, topic, qos)
+							
+							def subscriber_loop():
+								client.loop_forever()
+
+							thread = threading.Thread(target=subscriber_loop)
+							thread.daemon = False
+							self.MQTT_Handler.working_threads.append(thread)
+							thread.start()
+
 						else:
 
 							continue
