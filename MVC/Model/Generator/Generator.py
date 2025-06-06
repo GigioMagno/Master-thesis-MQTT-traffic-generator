@@ -149,13 +149,14 @@ class Generator:
 				### IMPORTANTE: Provare a togliere questo match case usando un dictionary e try/catch. dos, publisher, subscriber... sono le chiavi. I valori sono le corrispondenti funzioni da usare
 				match role:
 
-					case "denial of service" | "denial of service 2":
+					case "denial of service" | "denial of service 2" | "fd":
 
 						self.Evil_obj.DoS_attack(config, protocol, retain, role)
 
 					case "publisher":
 						
-						client_id = f"client_{role}_{i}"
+						chars = string.ascii_letters + string.digits
+						client_id = "".join(random.choices(chars, k=13))
 						print(f"client_id: {client_id}")
 						client = self.MQTT_Handler.mqtt_register_client(client_id, protocol=protocol)
 
@@ -179,7 +180,10 @@ class Generator:
 
 					case "subscriber":
 
-						client_id = f"client_{role}_{i}"
+						chars = string.ascii_letters + string.digits
+						identifier = "".join(random.choices(chars, k=13))
+						client_id = f"client_{role}_{identifier}"
+						#Aggiungere randomizzazione id subscriber
 						client = self.MQTT_Handler.mqtt_register_client(client_id, protocol=protocol)
 						topic = config.get("Topic")
 						qos = int(config.get("QoS", 0))

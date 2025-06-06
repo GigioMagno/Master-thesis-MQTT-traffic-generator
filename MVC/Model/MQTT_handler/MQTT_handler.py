@@ -23,7 +23,8 @@ class MQTT_handler:
 		self.client_protocols = {}
 
 
-	
+	#In condizioni normali (no DOS)
+
 	#Action to perform whenever a subscriber receives a message. This method is required by client object
 	# def on_message(self, client, userdata, message):
 		
@@ -34,6 +35,7 @@ class MQTT_handler:
 
 	# 		client_id = "anonymous"
 
+#Da attivare per attacco dos alla cpu
 
 	def on_message(self, client, userdata, message):
 		#Da rimuovere se creano problemi
@@ -80,14 +82,14 @@ class MQTT_handler:
 		
 		client_id = client_id or ""
 		client = self.mqtt_client(client_id=client_id, protocol=protocol)
-		
+		print(f"[DEBUG] Registrato client_id={client_id} con protocol={protocol}")		
 		if client is not None:
 		
 			with self.client_lock:
 				self.client_list.append(client)
 
 			self.client_protocols[client_id] = protocol
-			#print(f"[DEBUG] Registrato client_id={client_id} con protocol={protocol}")
+
 		return client
 
 

